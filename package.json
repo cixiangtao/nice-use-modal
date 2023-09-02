@@ -2,6 +2,7 @@
   "name": "nice-use-modal",
   "version": "0.0.0",
   "description": "A React modal hook",
+  "type": "module",
   "keywords": [
     "react",
     "modal",
