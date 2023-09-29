@@ -77,11 +77,6 @@
       "path": "./node_modules/cz-git"
     }
   },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
   "stylelint": {
     "extends": [
       "stylelint-config-standard",
