@@ -10,10 +10,10 @@
   ],
   "license": "MIT",
   "author": "周星星同学",
-  "homepage": "",
+  "homepage": "https://github.com/Mrcxt/nice-use-modal",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/Mrcxt/nice-use-modal"
   },
   "files": [
     "dist"
