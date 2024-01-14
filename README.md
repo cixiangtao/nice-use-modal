@@ -15,9 +15,11 @@ pnpm add nice-use-modal
 npm i nice-use-modal -S
 ```
 
-## 使用示例
+## Examples
 
-```tsx main.tsx
+main.tsx
+
+```tsx
 import { ModalProvider } from "nice-use-modal";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -29,14 +31,22 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 );
 ```
 
-```tsx MyModal.tsx
+MyModal.tsx
+
+```tsx
 import { useModal } from "nice-use-modal";
 import { Modal } from "antd";
 
-export default (props) => {
-  return useModal(({ visible, hide, destroy, data = {} }) => {
+interface IData {
+  title?: string;
+}
+
+export default (props) =>
+  useModal<IData>(({ visible, hide, destroy, data = {} }) => {
+    const { title='新建' } = data;
     return (
       <Modal
+        title={title}
         onOk={() => hide()}
         open={visible}
         onCancel={() => hide()}
@@ -46,10 +56,11 @@ export default (props) => {
       </Modal>
     );
   });
-};
 ```
 
-```tsx home.tsx
+home.tsx
+
+```tsx
 import useMyModal from "./MyModal";
 
 export default () => {
@@ -65,3 +76,30 @@ export default () => {
   );
 };
 ```
+
+## API
+
+```tsx
+import { useModal } from "nice-use-modal";
+
+const Result = useModal<T>((Props)=>{})
+```
+
+### Props
+
+| 参数    | 说明                  | 类型         | 默认值             |
+| ------- | --------------------- | ------------ | ------------------ |
+| visible | 是否显示              | `boolean`    | false              |
+| hide    | 隐藏                  | `() => void` | -                  |
+| destroy | 销毁                  | `() => void` | -                  |
+| data    | Modal打开时传入的data | `T           | Record<string,any> | undefined` | - |
+
+### Result
+
+| 参数    | 说明 | 类型         | 默认值                       |
+| ------- | ---- | ------------ | ---------------------------- |
+| show    | 显示 | `(data?: T   | Record<string,any>) => void` | - |
+| hide    | 隐藏 | `() => void` | -                            |
+| destroy | 销毁 | `() => void` | -                            |
+
+## Demos
