@@ -24,7 +24,7 @@ export default () => {
         </Button>
         <Button
           onClick={() => {
-            modal.remove();
+            modal.destroy();
           }}
         >
           删除Modal
@@ -48,7 +48,7 @@ export default () => {
         </Button>
         <Button
           onClick={() => {
-            modal2.remove();
+            modal2.destroy();
           }}
         >
           删除Modal2

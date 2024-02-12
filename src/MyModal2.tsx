@@ -1,5 +1,5 @@
 /*
- * @LastEditTime: 2023-08-08 14:24:17
+ * @LastEditTime: 2023-08-08 17:11:35
  * @Description:
  * @Date: 2023-08-07 18:27:39
  * @Author: @周星星同学
@@ -8,8 +8,12 @@ import { Modal, Button } from "antd";
 import { useModal } from "./hooks/useModel";
 import { useState, useEffect } from "react";
 
+interface IData {
+  title?: string;
+}
+
 export default () =>
-  useModal(({ visible, hide, destroy, data = {} }) => {
+  useModal<IData>(({ visible, hide, destroy, data = {} }) => {
     const { title = "新建" } = data;
 
     const [count, setCount] = useState(0);
