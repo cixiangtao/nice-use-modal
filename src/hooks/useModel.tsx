@@ -8,48 +8,41 @@ import {
 } from "react";
 import { nanoid } from "nanoid";
 
-interface IModel {
-  show: (v?: Record<string, any>) => void;
+interface IModel<T = IData> {
+  show: (v?: T) => void;
   hide: () => void;
   destroy: () => void;
 }
 
 type IData = Record<string, any>;
 
-interface IProps {
+interface IProps<T> {
   visible: boolean;
   hide: () => void;
   destroy: () => void;
-  data?: IData;
+  data?: T;
 }
 
-type IComponent = FC<IProps>;
+type IComponent<T = IData> = FC<IProps<T>>;
 
 /**
  * @description: 用于创建一个上下文
  * @param {*}
  * @return {*}
  */
-const Context = createContext<
-  | {
-      show: (key: string, component: IComponent, data?: IData) => void;
-      hide: (key: string) => void;
-      destroy: (key: string) => void;
-    }
-  | undefined
->(undefined);
+const Context = createContext<any>(undefined);
 
 /**
  * @description: 用于创建一个模态框
  * @param {FC} modal
  * @return {*}
  */
-export const useModal = (component: IComponent): IModel => {
+export function useModal<T = IData>(component: IComponent<T>): IModel<T> {
   const context = useContext(Context);
   const key = useMemo(() => nanoid(6), []);
 
   const show = useCallback(
-    (v?: IData) => {
+    (v?: T) => {
       context?.show(key, component, v);
     },
     [component, key, context]
@@ -68,7 +61,7 @@ export const useModal = (component: IComponent): IModel => {
     hide,
     destroy,
   };
-};
+}
 
 /**
  * @description: 用于创建一个模态框
