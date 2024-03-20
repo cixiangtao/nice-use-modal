@@ -1,5 +1,12 @@
 
 
+# [1.0.0](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.0-beta.2...v1.0.0) (2023-08-08)
+
+
+### Features
+
+* ✨ 完善ts类型提示 ([bdeb470](https://github.com/Mrcxt/nice-use-modal/commit/bdeb470f220e628463a502cfdd2260995678b4a2))
+
 # [1.0.0-beta.2](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2023-08-08)
 
 # [1.0.0-beta.1](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.0-beta.0...v1.0.0-beta.1) (2023-08-08)
