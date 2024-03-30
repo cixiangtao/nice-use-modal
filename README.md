@@ -87,19 +87,19 @@ const Result = useModal<T>((Props)=>{})
 
 ### Props
 
-| 参数    | 说明                  | 类型         | 默认值             |
-| ------- | --------------------- | ------------ | ------------------ |
-| visible | 是否显示              | `boolean`    | false              |
-| hide    | 隐藏                  | `() => void` | -                  |
-| destroy | 销毁                  | `() => void` | -                  |
-| data    | Modal打开时传入的data | `T           | Record<string,any> | undefined` | - |
+| 参数    | 说明                  | 类型                                           | 默认值 |
+| ------- | --------------------- | ---------------------------------------------- | ------ |
+| visible | 是否显示              | `boolean`                                      | false  |
+| hide    | 隐藏                  | `() => void`                                   | -      |
+| destroy | 销毁                  | `() => void`                                   | -      |
+| data    | Modal打开时传入的data | `T &#124; Record<string,any> &#124; undefined` | -      |
 
 ### Result
 
-| 参数    | 说明 | 类型         | 默认值                       |
-| ------- | ---- | ------------ | ---------------------------- |
-| show    | 显示 | `(data?: T   | Record<string,any>) => void` | - |
-| hide    | 隐藏 | `() => void` | -                            |
-| destroy | 销毁 | `() => void` | -                            |
+| 参数    | 说明 | 类型                                           | 默认值 |
+| ------- | ---- | ---------------------------------------------- | ------ |
+| show    | 显示 | `(data?: T &#124; Record<string,any>) => void` | -      |
+| hide    | 隐藏 | `() => void`                                   | -      |
+| destroy | 销毁 | `() => void`                                   | -      |
 
 ## Demos
