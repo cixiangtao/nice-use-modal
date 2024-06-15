@@ -24,7 +24,7 @@
       "import": "./dist/index.es.js"
     }
   },
-  "types": "dist/types/useModel.d.ts",
+  "types": "dist/useModal.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "vite build && tsc -p tsconfig.build.json",

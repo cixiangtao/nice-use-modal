@@ -16,7 +16,7 @@ export default defineConfig({
     minify: false,
     lib: {
       entry: resolve(
-        fileURLToPath(new URL("./src/hooks/useModel", import.meta.url))
+        fileURLToPath(new URL("./src/hooks/useModal", import.meta.url))
       ),
       name: "nice-use-modal",
       formats: ["es"],
