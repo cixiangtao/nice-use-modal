@@ -83,6 +83,8 @@ export const ModalProvider: FC<any> = ({ children }) => {
   };
 
   const hide = (key: string) => {
+    const modal = modals[key];
+    if (!modal) return;
     setModals((prev) => {
       return {
         ...prev,
