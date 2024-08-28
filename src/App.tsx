@@ -24,6 +24,13 @@ export default () => {
         </Button>
         <Button
           onClick={() => {
+            modal.hide();
+          }}
+        >
+          关闭Modal
+        </Button>
+        <Button
+          onClick={() => {
             modal.destroy();
           }}
         >
