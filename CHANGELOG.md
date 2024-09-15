@@ -1,5 +1,12 @@
 
 
+## [1.0.5](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.4...v1.0.5) (2023-08-08)
+
+
+### Bug Fixes
+
+* 🐛 关闭弹窗时增加当前实例判断 ([feb88c1](https://github.com/Mrcxt/nice-use-modal/commit/feb88c186266192fc4788efbf0e827aa716aab43))
+
 ## [1.0.4](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.3...v1.0.4) (2023-08-08)
 
 ## [1.0.3](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.2...v1.0.3) (2023-08-08)
