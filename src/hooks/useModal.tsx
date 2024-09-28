@@ -16,14 +16,14 @@ interface IModel<T = IData> {
 
 type IData = Record<string, any>;
 
-interface IProps<T> {
+export interface IProps<T> {
   visible: boolean;
   hide: () => void;
   destroy: () => void;
   data?: T;
 }
 
-type IComponent<T = IData> = FC<IProps<T>>;
+export type IComponent<T = IData> = FC<IProps<T>>;
 
 /**
  * @description: 用于创建一个上下文
