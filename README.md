@@ -1,9 +1,20 @@
 # nice-use-modal
 
+![license MIT](https://badgen.net/npm/license/nice-use-modal)
+![npm](https://badgen.net/npm/v/nice-use-modal)
+![downloads](https://badgen.net/npm/dt/nice-use-modal?label=downloads)
+
 ## 前言
 
-在react中使用modal是一个比较令人心烦的痛点。
+在react中使用modal / drawer是一个比较令人心烦的痛点。
 nice-use-modal可以帮助你解决这一烦恼。
+
+## 特性
+
+- 🚀 无UI依赖：内部仅负责维护状态和渲染，因此你可以使用任何你喜欢的UI库以及组件。
+- 🚀 无副作用：内部使用createContext维护上下文，避免render方式丢失全局配置。
+- 🚀 更灵活：hooks的方式使用，命令式调用，不需要在组件中引入ReactNode。
+- 🚀 更简单：弹窗关闭时会自动重置内部状态，无序手动维护。
 
 ## 安装
 
@@ -32,6 +43,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 ```
 
 MyModal.tsx
+
+> Drawer和Modal的使用方式一致。
 
 ```tsx
 import { useModal } from "nice-use-modal";
