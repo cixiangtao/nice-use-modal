@@ -31,7 +31,7 @@
     "build": "vite build && tsc -p tsconfig.build.json",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "release": "npm run build && release-it"
+    "release": "npm run build && release-it --only-version"
   },
   "dependencies": {
     "nanoid": "^4.0.1",
