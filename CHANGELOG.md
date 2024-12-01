@@ -1,5 +1,12 @@
 
 
+## [1.0.6](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.5...v1.0.6) (2023-08-09)
+
+
+### Features
+
+* ✨ 导出部分ts类型 ([5a1eaea](https://github.com/Mrcxt/nice-use-modal/commit/5a1eaea6087cbb2884ac85b1f28afb3e755ffcb2))
+
 ## [1.0.5](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.4...v1.0.5) (2023-08-08)
 
 
