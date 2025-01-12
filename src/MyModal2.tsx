@@ -5,7 +5,7 @@
  * @Author: @周星星同学
  */
 import { Modal, Button } from "antd";
-import { useModal } from "./hooks/useModal";
+import { useModal } from "../packages/useModal";
 import { useState, useEffect } from "react";
 
 interface IData {

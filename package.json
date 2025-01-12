@@ -28,7 +28,8 @@
   "types": "dist/useModal.d.ts",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tsc -p tsconfig.build.json",
+    "build:demo": "vite build",
+    "build": "vite build --config vite.lib.config.ts  && tsc -p tsconfig.build.json",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "release": "npm run build && release-it --only-version"
@@ -37,10 +38,9 @@
     "nanoid": "^4.0.1"
   },
   "devDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.6.7",
+    "@mdx-js/rollup": "^2.3.0",
     "@release-it/conventional-changelog": "^7.0.0",
     "@types/node": "^20.4.8",
     "@types/react": "^18.2.15",
@@ -58,6 +58,8 @@
     "husky": "^8.0.3",
     "lint-staged": "^13.1.2",
     "prettier": "^2.7.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "release-it": "^15.6.0",
     "stylelint": "^14.9.1",
     "typescript": "^5.0.2",

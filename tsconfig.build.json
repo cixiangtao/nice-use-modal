@@ -7,5 +7,5 @@
     "emitDeclarationOnly": true, // 只生成类型文件
     "declarationDir": "dist" // 类型文件的导出目录
   },
-  "include": ["src/hooks/useModal.tsx"] // 编译目标仅为 src 文件夹下的文件
+  "include": ["packages/useModal/index.tsx"] // 编译目标仅为 src 文件夹下的文件
 }
