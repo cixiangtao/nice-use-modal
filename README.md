@@ -4,26 +4,35 @@
 ![npm](https://badgen.net/npm/v/nice-use-modal)
 ![downloads](https://badgen.net/npm/dt/nice-use-modal?label=downloads)
 
-## 前言
+## Docs
 
-在react中使用modal / drawer是一个比较令人心烦的痛点。
-nice-use-modal可以帮助你解决这一烦恼。
+- [English](./README.md)
+- [中文](./README-zh%E2%80%91cn.md)
 
-## 特性
+## Introduction
 
-- 🚀 无UI依赖：内部仅负责维护状态和渲染，因此你可以使用任何你喜欢的UI库以及组件。
-- 🚀 无副作用：内部使用createContext维护上下文，避免render方式丢失全局配置。
-- 🚀 更灵活：hooks的方式使用，命令式调用，不需要在组件中引入ReactNode。
-- 🚀 更简单：弹窗关闭时会自动重置内部状态，无序手动维护。
+Using modals and drawers in React can be a bit of a pain. nice-use-modal can help alleviate this annoyance.
 
-## 安装
+## Features
+
+- 🚀 No UI Dependency: It only manages state and rendering internally, so you can use any UI library or components you like.
+- 🚀 No Side Effects: It uses createContext internally to maintain context, avoiding the loss of global configurations in rendering.
+- 🚀 More Flexible: Use it as hooks, call it imperatively, no need to import ReactNode into components.
+- 🚀 Simpler: The internal state is automatically reset when the modal is closed, so you don't need to manage it manually.
+- 🚀 TypeScript Support: Written in TypeScript, it provides TypeScript hints.
+
+## Installation
 
 ```sh
 # pnpm
 pnpm add nice-use-modal
 
+# yarn
+yarn add nice-use-modal
+
 # npm
 npm i nice-use-modal -S
+
 ```
 
 ## Examples
@@ -34,57 +43,100 @@ main.tsx
 import { ModalProvider } from "nice-use-modal";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
     <ModalProvider>
       <App />
     </ModalProvider>
-  </React.StrictMode>
 );
 ```
 
 MyModal.tsx
 
-> Drawer和Modal的使用方式一致。
+> The usage of Drawer and Modal is the same.
 
 ```tsx
-import { useModal } from "nice-use-modal";
-import { Modal } from "antd";
+import React, { useEffect } from "react";
+import { Modal, message } from "antd";
+import { ModalProps } from "nice-use-modal";
 
 interface IData {
   title?: string;
+  desc?: string;
 }
 
-export default (props) =>
-  useModal<IData>(({ visible, hide, destroy, data = {} }) => {
-    const { title='新建' } = data;
-    return (
-      <Modal
-        title={title}
-        onOk={() => hide()}
-        open={visible}
-        onCancel={() => hide()}
-        // afterClose={() => destroy()}
-      >
-        Hello World!
-      </Modal>
-    );
-  });
+interface IProps {
+  onOk: () => void;
+  onCancel?: () => void;
+}
+
+export default (p: ModalProps<IData, IProps>) => {
+  const { visible, hide, destroy, data = {}, props } = p;
+
+  const { title = "New", desc = "Hello World!" } = data;
+  const { onOk, onCancel } = props;
+
+  useEffect(() => {
+    message.info("The component is registered only when the show method is executed.");
+  }, []);
+
+  return (
+    <Modal
+      title={title}
+      onOk={() => {
+        onOk?.();
+        hide();
+      }}
+      open={visible}
+      onCancel={() => {
+        onCancel?.();
+        hide();
+      }}
+      afterClose={() => destroy()} // For components with closing animations, it's best to destroy the component after the animation ends to preserve the animation effect.
+    >
+      {desc}
+    </Modal>
+  );
+};
 ```
 
 home.tsx
 
 ```tsx
-import useMyModal from "./MyModal";
+import MyModal from "./MyModal";
+import { Button, Space, message } from "antd";
+import { useModal } from "nice-use-modal";
 
 export default () => {
-  const { show, hide, destroy } = useMyModal();
+  const { show, hide, destroy } = useModal(MyModal, {
+    onOk: () => {
+      message.success("ok");
+    },
+    onCancel: () => {
+      message.error("cancel");
+    },
+  });
 
   return (
     <>
-      <button onClick={() => show()}>新建</button>
-      <button onClick={() => show({ title: "编辑" })}>编辑</button>
-      <button onClick={() => hide()}>关闭</button>
-      <button onClick={() => destroy()}>销毁</button>
+      <Space>
+        <Button
+          onClick={() => {
+            show();
+          }}
+        >
+          New
+        </Button>
+        <Button
+          onClick={() =>
+            show({
+              title: "Edit",
+              desc: "You can pass data in real-time for internal use in the component.",
+            })
+          }
+        >
+          Edit
+        </Button>
+        <Button onClick={() => destroy()}>Destroy</Button>
+      </Space>
     </>
   );
 };
@@ -100,19 +152,22 @@ const Result = useModal<T>((Props)=>{})
 
 ### Props
 
-| 参数    | 说明                  | 类型                                   | 默认值 |
-| ------- | --------------------- | -------------------------------------- | ------ |
-| visible | 是否显示              | `boolean`                              | false  |
-| hide    | 隐藏                  | `() => void`                           | -      |
-| destroy | 销毁                  | `() => void`                           | -      |
-| data    | Modal打开时传入的data | `T \| Record<string,any> \| undefined` | -      |
+| Parameter | Description                         | Type                                   | Default     | Version |
+| --------- | ----------------------------------- | -------------------------------------- | ----------- | ------- |
+| visible   | Whether to show                     | `boolean`                              | false       | -       |
+| hide      | Hide the modal                      | `() => void`                           | -           | -       |
+| destroy   | Destroy the modal                   | `() => void`                           | -           | -       |
+| data      | Data passed when opening the modal  | `T \| Record<string,any> \| undefined` | -           | -       |
+| props     | Props passed when registering modal | `K`                                    | `undefined` | `1.1.0` |
+
+> Note: The difference between hide and destroy is that hide preserves the modal's state, while destroy destroys the modal's state. For modals with closing animations, it's best to use hide first, and then destroy after the animation ends. Using destroy directly may cause the animation to not end properly.
+
+> Note: The difference between data and props is that data is passed each time the modal is opened, while props are passed when the modal is registered and do not change.
 
 ### Result
 
-| 参数    | 说明 | 类型                                       | 默认值 |
-| ------- | ---- | ------------------------------------------ | ------ |
-| show    | 显示 | `(data?: T \| Record<string,any>) => void` | -      |
-| hide    | 隐藏 | `() => void`                               | -      |
-| destroy | 销毁 | `() => void`                               | -      |
-
-## Demos
+| Parameter | Description | Type                                       | Default |
+| --------- | ----------- | ------------------------------------------ | ------- |
+| show      | Show        | `(data?: T \| Record<string,any>) => void` | -       |
+| hide      | Hide        | `() => void`                               | -       |
+| destroy   | Destroy     | `() => void`                               | -       |

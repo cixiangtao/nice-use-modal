@@ -1,66 +1,41 @@
-import { Button, Space, Divider } from "antd";
-import useModal from "./MyModal2";
+import React from "react";
+import { Button, Space, message } from "antd";
+import MyModal from "./MyModal";
+import { useModal } from "~/packages/useModal";
 
 export default () => {
-  const modal = useModal();
-  const modal2 = useModal();
+  const { show, hide, destroy } = useModal(MyModal, {
+    onOk: () => {
+      message.success("ok");
+    },
+    onCancel: () => {
+      message.error("cancel");
+    },
+  });
 
   return (
-    <div>
+    <>
+      {/* <MyModal /> */} {/* 无需再手动注册组件 */}
       <Space>
         <Button
           onClick={() => {
-            modal.show();
+            show();
           }}
         >
-          新建Modal
+          新建
         </Button>
         <Button
-          onClick={() => {
-            modal.show({ title: "编辑" });
-          }}
+          onClick={() =>
+            show({
+              title: "编辑",
+              desc: "你可以实时传入data，以供组件内部使用",
+            })
+          }
         >
-          编辑Modal
+          编辑
         </Button>
-        <Button
-          onClick={() => {
-            modal.hide();
-          }}
-        >
-          关闭Modal
-        </Button>
-        <Button
-          onClick={() => {
-            modal.destroy();
-          }}
-        >
-          删除Modal
-        </Button>
+        <Button onClick={() => destroy()}>销毁</Button>
       </Space>
-      <Divider />
-      <Space>
-        <Button
-          onClick={() => {
-            modal2.show();
-          }}
-        >
-          新建Modal2
-        </Button>
-        <Button
-          onClick={() => {
-            modal2.show({ title: "编辑" });
-          }}
-        >
-          编辑Modal2
-        </Button>
-        <Button
-          onClick={() => {
-            modal2.destroy();
-          }}
-        >
-          删除Modal2
-        </Button>
-      </Space>
-    </div>
+    </>
   );
 };

@@ -1,3 +1,9 @@
+/*
+ * @LastEditTime: 2023-08-31 11:01:40
+ * @Description:
+ * @Date: 2023-08-25 17:44:55
+ * @Author: @周星星同学
+ */
 import type { FC } from "react";
 import {
   createContext,
@@ -6,24 +12,38 @@ import {
   useMemo,
   useCallback,
 } from "react";
-import { nanoid } from "nanoid";
 
-interface IModel<T = IData> {
+function getRandomKey(length: number) {
+  const allChars =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
+
+  while (result.length < length) {
+    const randomIndex = Math.floor(Math.random() * allChars.length);
+    result += allChars.charAt(randomIndex);
+  }
+
+  return result;
+}
+
+export interface ModalResult<T = IData> {
   show: (v?: T) => void;
   hide: () => void;
   destroy: () => void;
 }
 
 type IData = Record<string, any>;
+type IProps = undefined;
 
-export interface IProps<T> {
+export interface ModalProps<T = IData, K = IProps> {
   visible: boolean;
   hide: () => void;
   destroy: () => void;
   data?: T;
+  props: K;
 }
 
-export type IComponent<T = IData> = FC<IProps<T>>;
+type IComponent<T = IData, K = IProps> = FC<ModalProps<T, K>>;
 
 /**
  * @description: 用于创建一个上下文
@@ -37,15 +57,18 @@ const Context = createContext<any>(undefined);
  * @param {FC} modal
  * @return {*}
  */
-export function useModal<T = IData>(component: IComponent<T>): IModel<T> {
+export function useModal<T = IData, K = IProps>(
+  component: IComponent<T, K>,
+  props?: K
+): ModalResult<T> {
   const context = useContext(Context);
-  const key = useMemo(() => nanoid(6), []);
+  const key = useMemo(() => getRandomKey(6), []);
 
   const show = useCallback(
     (v?: T) => {
-      context?.show(key, component, v);
+      context?.show(key, component, v, props);
     },
-    [component, key, context]
+    [component, key, context, props]
   );
 
   const hide = useCallback(() => {
@@ -70,14 +93,27 @@ export function useModal<T = IData>(component: IComponent<T>): IModel<T> {
  */
 export const ModalProvider: FC<any> = ({ children }) => {
   const [modals, setModals] = useState<
-    Record<string, { component: IComponent; data?: IData; visible: boolean }>
+    Record<
+      string,
+      {
+        component: IComponent<IData, IProps>;
+        data?: IData;
+        props?: IProps;
+        visible: boolean;
+      }
+    >
   >({});
 
-  const show = (key: string, component: IComponent, data?: IData) => {
+  const show = async (
+    key: string,
+    component: IComponent<IData, IProps>,
+    data?: IData,
+    props?: IProps
+  ) => {
     setModals((prev) => {
       return {
         ...prev,
-        [key]: { component, data, visible: true },
+        [key]: { component, data, props, visible: true },
       };
     });
   };
@@ -94,6 +130,8 @@ export const ModalProvider: FC<any> = ({ children }) => {
   };
 
   const destroy = (key: string) => {
+    const modal = modals[key];
+    if (!modal) return;
     setModals((prev) => {
       const { [key]: _, ...rest } = prev;
       return rest;
@@ -110,15 +148,18 @@ export const ModalProvider: FC<any> = ({ children }) => {
     >
       {children}
       {Object.keys(modals).map((key) => {
-        const { component: Component, data, visible } = modals[key];
+        const { component: Component, data, props, visible } = modals[key];
         return (
-          <Component
-            key={key}
-            visible={visible}
-            hide={() => hide(key)}
-            destroy={() => destroy(key)}
-            data={data}
-          />
+          <>
+            <Component
+              key={key}
+              visible={visible}
+              hide={() => hide(key)}
+              destroy={() => destroy(key)}
+              data={data}
+              props={props}
+            />
+          </>
         );
       })}
     </Context.Provider>
