@@ -16,7 +16,8 @@
     "url": "https://github.com/Mrcxt/nice-use-modal"
   },
   "files": [
-    "dist"
+    "dist",
+    "README-zh‑cn.md"
   ],
   "module": "dist/index.es.js",
   "exports": {
