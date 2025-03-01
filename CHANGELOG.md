@@ -1,5 +1,12 @@
 
 
+# [1.1.0](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.7...v1.1.0) (2023-08-31)
+
+
+### Features
+
+* ✨ 新增props,简化写法 ([b41fd05](https://github.com/Mrcxt/nice-use-modal/commit/b41fd05549bd2b8e4ea0f8c3803826615d800ecb))
+
 ## [1.0.7](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.6...v1.0.7) (2023-08-09)
 
 ## [1.0.6](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.5...v1.0.6) (2023-08-09)
