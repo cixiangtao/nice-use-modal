@@ -140,9 +140,10 @@ export default () => {
 ## API
 
 ```tsx
-import { useModal } from "nice-use-modal";
+import { useModal } from 'nice-use-modal';
+import type { ModalProps , ModalResult } from 'nice-use-modal';
 
-const Result = useModal<T>((Props)=>{})
+const Result:ModalResult = useModal<T,K>((Props:ModalProps<T,K>)=>{},props)
 ```
 
 ### Props
