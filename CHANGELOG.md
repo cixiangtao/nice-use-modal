@@ -1,5 +1,7 @@
 
 
+## [1.1.1](https://github.com/Mrcxt/nice-use-modal/compare/v1.1.0...v1.1.1) (2023-08-31)
+
 # [1.1.0](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.7...v1.1.0) (2023-08-31)
 
 
