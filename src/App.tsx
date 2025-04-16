@@ -1,21 +1,22 @@
 import React from "react";
-import { Button, Space, message } from "antd";
-import MyModal from "./MyModal";
+import { Button, Space, message, Divider } from "antd";
 import { useModal } from "~/packages/useModal";
+import MyModal from "./MyModal";
 
 export default () => {
   const { show, hide, destroy } = useModal(MyModal, {
     onOk: () => {
-      message.success("ok");
+      message.info("点击了确定");
     },
     onCancel: () => {
-      message.error("cancel");
+      message.info("点击了取消");
     },
   });
 
   return (
     <>
       {/* <MyModal /> */} {/* 无需再手动注册组件 */}
+      <Divider children="useModal" />
       <Space>
         <Button
           onClick={() => {

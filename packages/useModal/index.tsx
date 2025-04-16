@@ -1,5 +1,5 @@
 /*
- * @LastEditTime: 2023-08-31 11:01:40
+ * @LastEditTime: 2023-08-31 16:08:16
  * @Description:
  * @Date: 2023-08-25 17:44:55
  * @Author: @周星星同学
@@ -150,16 +150,14 @@ export const ModalProvider: FC<any> = ({ children }) => {
       {Object.keys(modals).map((key) => {
         const { component: Component, data, props, visible } = modals[key];
         return (
-          <>
-            <Component
-              key={key}
-              visible={visible}
-              hide={() => hide(key)}
-              destroy={() => destroy(key)}
-              data={data}
-              props={props}
-            />
-          </>
+          <Component
+            key={key}
+            visible={visible}
+            hide={() => hide(key)}
+            destroy={() => destroy(key)}
+            data={data}
+            props={props}
+          />
         );
       })}
     </Context.Provider>
