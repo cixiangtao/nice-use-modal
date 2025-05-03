@@ -1,5 +1,12 @@
 
 
+## [1.1.2](https://github.com/Mrcxt/nice-use-modal/compare/v1.1.1...v1.1.2) (2023-08-31)
+
+
+### Bug Fixes
+
+* 🐛 add key ([ee6c2e5](https://github.com/Mrcxt/nice-use-modal/commit/ee6c2e5813e30a95314eac0691c45cbe680c4f9f))
+
 ## [1.1.1](https://github.com/Mrcxt/nice-use-modal/compare/v1.1.0...v1.1.1) (2023-08-31)
 
 # [1.1.0](https://github.com/Mrcxt/nice-use-modal/compare/v1.0.7...v1.1.0) (2023-08-31)
