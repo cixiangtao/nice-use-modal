@@ -1,5 +1,5 @@
 /*
- * @LastEditTime: 2023-08-31 16:08:16
+ * @LastEditTime: 2023-08-31 18:53:20
  * @Description:
  * @Date: 2023-08-25 17:44:55
  * @Author: @周星星同学
@@ -53,42 +53,8 @@ type IComponent<T = IData, K = IProps> = FC<ModalProps<T, K>>;
 const Context = createContext<any>(undefined);
 
 /**
- * @description: 用于创建一个模态框
- * @param {FC} modal
- * @return {*}
- */
-export function useModal<T = IData, K = IProps>(
-  component: IComponent<T, K>,
-  props?: K
-): ModalResult<T> {
-  const context = useContext(Context);
-  const key = useMemo(() => getRandomKey(6), []);
-
-  const show = useCallback(
-    (v?: T) => {
-      context?.show(key, component, v, props);
-    },
-    [component, key, context, props]
-  );
-
-  const hide = useCallback(() => {
-    context?.hide(key);
-  }, [key, context]);
-
-  const destroy = useCallback(() => {
-    context?.destroy(key);
-  }, [key, context]);
-
-  return {
-    show,
-    hide,
-    destroy,
-  };
-}
-
-/**
- * @description: 用于创建一个模态框
- * @param {FC} modal
+ * @description: Provider
+ * @param {*}
  * @return {*}
  */
 export const ModalProvider: FC<any> = ({ children }) => {
@@ -163,3 +129,37 @@ export const ModalProvider: FC<any> = ({ children }) => {
     </Context.Provider>
   );
 };
+
+/**
+ * @description: hook
+ * @param {FC} modal
+ * @return {*}
+ */
+export function useModal<T = IData, K = IProps>(
+  component: IComponent<T, K>,
+  props?: K
+): ModalResult<T> {
+  const context = useContext(Context);
+  const key = useMemo(() => getRandomKey(6), []);
+
+  const show = useCallback(
+    (v?: T) => {
+      context?.show(key, component, v, props);
+    },
+    [component, key, context, props]
+  );
+
+  const hide = useCallback(() => {
+    context?.hide(key);
+  }, [key, context]);
+
+  const destroy = useCallback(() => {
+    context?.destroy(key);
+  }, [key, context]);
+
+  return {
+    show,
+    hide,
+    destroy,
+  };
+}
