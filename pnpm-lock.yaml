@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-dependencies:
-  nanoid:
-    specifier: ^4.0.1
-    version: registry.npmmirror.com/nanoid@4.0.1
-
 devDependencies:
   '@commitlint/cli':
     specifier: ^17.0.3
@@ -7155,14 +7150,6 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
     dev: true
-
-  registry.npmmirror.com/nanoid@4.0.1:
-    resolution: {integrity: sha512-udKGtCCUafD3nQtJg9wBhRP3KMbPglUsgV5JVsXhvyBs/oefqb4sqMEhKBBgqZncYowu58p1prsZQBYvAj/Gww==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/nanoid/-/nanoid-4.0.1.tgz}
-    name: nanoid
-    version: 4.0.1
-    engines: {node: ^14 || ^16 || >=18}
-    hasBin: true
-    dev: false
 
   registry.npmmirror.com/new-github-release-url@2.0.0:
     resolution: {integrity: sha512-NHDDGYudnvRutt/VhKFlX26IotXe1w0cmkDm6JGquh5bz/bDTw0LufSmH/GxTjEdpHEO+bVKFTwdrcGa/9XlKQ==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/new-github-release-url/-/new-github-release-url-2.0.0.tgz}

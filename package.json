@@ -6,7 +6,9 @@
   "keywords": [
     "react",
     "modal",
-    "hook"
+    "hook",
+    "ts",
+    "typescript"
   ],
   "license": "MIT",
   "author": "周星星同学",
@@ -23,10 +25,10 @@
   "exports": {
     ".": {
       "import": "./dist/index.es.js",
-      "types": "./dist/useModal.d.ts"
+      "types": "./dist/index.d.ts"
     }
   },
-  "types": "dist/useModal.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build:demo": "vite build",
@@ -34,9 +36,6 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "release": "npm run build && release-it --only-version"
-  },
-  "dependencies": {
-    "nanoid": "^4.0.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
