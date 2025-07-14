@@ -7,6 +7,7 @@ export default () => {
   const { show, hide, destroy } = useModal(MyModal, {
     onOk: () => {
       message.info("点击了确定");
+      hide();
     },
     onCancel: () => {
       message.info("点击了取消");

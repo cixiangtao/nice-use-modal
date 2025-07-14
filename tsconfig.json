@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "baseUrl": "./",
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -17,16 +15,19 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": false,
 
-    //
+    "baseUrl": "./",
+    /* Paths */
     "paths": {
       "@/*": ["src/*"],
       "~/*": ["./*"]
     }
   },
+  "types": ["vite/client"],
   "include": ["src", "packages/useModal/index.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

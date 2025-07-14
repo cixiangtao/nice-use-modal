@@ -27,14 +27,14 @@ export default (p: ModalProps<IData, IProps>) => {
       title={title}
       onOk={() => {
         onOk?.();
-        hide();
+        // hide();
       }}
       open={visible}
       onCancel={() => {
         onCancel?.();
         hide();
       }}
-      afterClose={() => destroy()} // 对于有关闭动画的组件，需要在动画结束后再选择销毁组件，这样可以保留动画效果
+      // afterClose={() => destroy()} // 对于有关闭动画的组件，需要在动画结束后再选择销毁组件，这样可以保留动画效果
     >
       {desc}
     </Modal>

@@ -1,5 +1,5 @@
 /*
- * @LastEditTime: 2023-08-31 18:53:20
+ * @LastEditTime: 2023-10-30 16:35:03
  * @Description:
  * @Date: 2023-08-25 17:44:55
  * @Author: @周星星同学
@@ -11,6 +11,7 @@ import {
   useState,
   useMemo,
   useCallback,
+  useEffect,
 } from "react";
 
 function getRandomKey(length: number) {
@@ -85,9 +86,9 @@ export const ModalProvider: FC<any> = ({ children }) => {
   };
 
   const hide = (key: string) => {
-    const modal = modals[key];
-    if (!modal) return;
     setModals((prev) => {
+      const modal = prev[key];
+      if (!modal) return prev;
       return {
         ...prev,
         [key]: { ...prev[key], visible: false },
@@ -96,9 +97,9 @@ export const ModalProvider: FC<any> = ({ children }) => {
   };
 
   const destroy = (key: string) => {
-    const modal = modals[key];
-    if (!modal) return;
     setModals((prev) => {
+      const modal = prev[key];
+      if (!modal) return prev;
       const { [key]: _, ...rest } = prev;
       return rest;
     });
@@ -110,6 +111,7 @@ export const ModalProvider: FC<any> = ({ children }) => {
         show,
         hide,
         destroy,
+        modals,
       }}
     >
       {children}
