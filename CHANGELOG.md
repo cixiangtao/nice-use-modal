@@ -1,5 +1,12 @@
 
 
+## [1.1.4](https://github.com/Mrcxt/nice-use-modal/compare/v1.1.3...v1.1.4) (2023-10-30)
+
+
+### Bug Fixes
+
+* 🐛 修复hide无法关闭弹窗的bug ([00f1576](https://github.com/Mrcxt/nice-use-modal/commit/00f157610fb8a3be7a63cb88903d1d3c61973d20))
+
 ## [1.1.3](https://github.com/Mrcxt/nice-use-modal/compare/v1.1.2...v1.1.3) (2023-09-01)
 
 
