@@ -1,5 +1,5 @@
 /*
- * @LastEditTime: 2023-10-30 16:35:03
+ * @LastEditTime: 2023-10-30 19:00:57
  * @Description:
  * @Date: 2023-08-25 17:44:55
  * @Author: @周星星同学
@@ -27,24 +27,26 @@ function getRandomKey(length: number) {
   return result;
 }
 
-export interface ModalResult<T = IData> {
+interface IModal {
+  data?: Record<string, any>;
+  props?: Record<string, any>;
+}
+
+export interface ModalResult<T = IModal["data"]> {
   show: (v?: T) => void;
   hide: () => void;
   destroy: () => void;
 }
 
-type IData = Record<string, any>;
-type IProps = undefined;
-
-export interface ModalProps<T = IData, K = IProps> {
+export interface ModalProps<T extends IModal> {
   visible: boolean;
   hide: () => void;
   destroy: () => void;
-  data?: T;
-  props: K;
+  data?: T["data"];
+  props: T["props"];
 }
 
-type IComponent<T = IData, K = IProps> = FC<ModalProps<T, K>>;
+type IComponent<T extends IModal> = FC<ModalProps<T>>;
 
 /**
  * @description: 用于创建一个上下文
@@ -63,9 +65,9 @@ export const ModalProvider: FC<any> = ({ children }) => {
     Record<
       string,
       {
-        component: IComponent<IData, IProps>;
-        data?: IData;
-        props?: IProps;
+        component: IComponent<IModal>;
+        data?: IModal["data"];
+        props?: IModal["props"];
         visible: boolean;
       }
     >
@@ -73,9 +75,9 @@ export const ModalProvider: FC<any> = ({ children }) => {
 
   const show = async (
     key: string,
-    component: IComponent<IData, IProps>,
-    data?: IData,
-    props?: IProps
+    component: IComponent<IModal>,
+    data?: IModal["data"],
+    props?: IModal["props"]
   ) => {
     setModals((prev) => {
       return {
@@ -137,15 +139,15 @@ export const ModalProvider: FC<any> = ({ children }) => {
  * @param {FC} modal
  * @return {*}
  */
-export function useModal<T = IData, K = IProps>(
-  component: IComponent<T, K>,
-  props?: K
-): ModalResult<T> {
+export function useModal<T extends IModal>(
+  component: IComponent<T>,
+  props?: T["props"]
+): ModalResult<T["data"]> {
   const context = useContext(Context);
   const key = useMemo(() => getRandomKey(6), []);
 
   const show = useCallback(
-    (v?: T) => {
+    (v?: T["data"]) => {
       context?.show(key, component, v, props);
     },
     [component, key, context, props]

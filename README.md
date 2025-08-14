@@ -68,7 +68,10 @@ interface IProps {
   onCancel?: () => void;
 }
 
-export default (p: ModalProps<IData, IProps>) => {
+export default (p: ModalProps<{
+  data: IData;
+  props: IProps;
+}>) => {
   const { visible, hide, destroy, data = {}, props } = p;
 
   const { title = "New", desc = "Hello World!" } = data;
@@ -142,13 +145,44 @@ export default () => {
 };
 ```
 
+You can also use the "useModal" approach directly (I recommend this approach more).
+
+```tsx
+// MyModal.tsx
+import { useModal } from "nice-use-modal";
+
+export default (props: IProps;)=>{
+  return useModal<{
+    data: IData;
+  }>(({
+    visible,
+    hide,
+    destroy,
+    data,
+  })=>{
+    return <div>hello world</div>
+  })
+}
+```
+
+This way, you can use Modal anywhere.
+
+```tsx
+import useMyModal from './MyModal'
+
+const {show,hide,destroy} = useMyModal({
+  onOk:()=>{},
+  onCancel:()=>{}
+})
+```
+
 ## API
 
 ```tsx
 import { useModal } from 'nice-use-modal';
 import type { ModalProps , ModalResult } from 'nice-use-modal';
 
-const Result:ModalResult = useModal<T,K>((Props:ModalProps<T,K>)=>{},props)
+const Result:ModalResult = useModal<{data:T;props:K}>((Props:ModalProps<{data:T;props:K}>)=>{},props)
 ```
 
 ### Props
