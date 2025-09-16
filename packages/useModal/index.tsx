@@ -1,20 +1,22 @@
 /*
- * @LastEditTime: 2023-10-30 19:00:57
- * @Description:
+ * @LastEditTime: 2025-05-19 16:48:47
+ * @Description: A React modal hook with TypeScript support
  * @Date: 2023-08-25 17:44:55
  * @Author: @周星星同学
  */
-import type { FC } from "react";
+import type { FC, ReactNode } from "react";
 import {
   createContext,
   useContext,
   useState,
   useMemo,
   useCallback,
-  useEffect,
 } from "react";
 
-function getRandomKey(length: number) {
+/**
+ * Generate a random key for modal identification
+ */
+function getRandomKey(length: number = 6): string {
   const allChars =
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let result = "";
@@ -27,98 +29,142 @@ function getRandomKey(length: number) {
   return result;
 }
 
-interface IModal {
-  data?: Record<string, any>;
-  props?: Record<string, any>;
+/**
+ * Base modal type with generic data and props
+ */
+export interface ModalType<D = unknown, P = unknown> {
+  data?: D;
+  props?: P;
 }
 
-export interface ModalResult<T = IModal["data"]> {
-  show: (v?: T) => void;
+/**
+ * Modal result interface returned by useModal hook
+ */
+export interface ModalResult<T = unknown> {
+  show: (data?: T) => void;
   hide: () => void;
   destroy: () => void;
 }
 
-export interface ModalProps<T extends IModal> {
+/**
+ * Props passed to modal components
+ */
+export interface ModalProps<T extends ModalType = ModalType> {
   visible: boolean;
   hide: () => void;
   destroy: () => void;
   data?: T["data"];
-  props: T["props"];
+  props?: T["props"];
 }
 
-type IComponent<T extends IModal> = FC<ModalProps<T>>;
+/**
+ * Modal component type
+ */
+export type ModalComponent<T extends ModalType = ModalType> = FC<ModalProps<T>>;
 
 /**
- * @description: 用于创建一个上下文
- * @param {*}
- * @return {*}
+ * Internal modal state
  */
-const Context = createContext<any>(undefined);
+interface ModalState {
+  component: ModalComponent<any>;
+  data?: unknown;
+  props?: unknown;
+  visible: boolean;
+}
 
 /**
- * @description: Provider
- * @param {*}
- * @return {*}
+ * Modal context value type
  */
-export const ModalProvider: FC<any> = ({ children }) => {
-  const [modals, setModals] = useState<
-    Record<
-      string,
-      {
-        component: IComponent<IModal>;
-        data?: IModal["data"];
-        props?: IModal["props"];
-        visible: boolean;
-      }
-    >
-  >({});
-
-  const show = async (
+interface ModalContextValue {
+  show: <T extends ModalType>(
     key: string,
-    component: IComponent<IModal>,
-    data?: IModal["data"],
-    props?: IModal["props"]
-  ) => {
-    setModals((prev) => {
-      return {
+    component: ModalComponent<T>,
+    data?: T["data"],
+    props?: T["props"]
+  ) => void;
+  hide: (key: string) => void;
+  destroy: (key: string) => void;
+  modals: Record<string, ModalState>;
+}
+
+/**
+ * Modal provider props
+ */
+export interface ModalProviderProps {
+  children: ReactNode;
+}
+
+/**
+ * Modal context
+ */
+const ModalContext = createContext<ModalContextValue | null>(null);
+
+/**
+ * Hook to access modal context (for advanced usage)
+ */
+export const useModalContext = (): ModalContextValue => {
+  const context = useContext(ModalContext);
+  if (!context) {
+    throw new Error('useModalContext must be used within a ModalProvider');
+  }
+  return context;
+};
+
+/**
+ * Modal provider component that manages all modals
+ */
+export const ModalProvider: FC<ModalProviderProps> = ({ children }) => {
+  const [modals, setModals] = useState<Record<string, ModalState>>({});
+
+  const show = useCallback(
+    <T extends ModalType>(
+      key: string,
+      component: ModalComponent<T>,
+      data?: T["data"],
+      props?: T["props"]
+    ) => {
+      setModals((prev) => ({
         ...prev,
         [key]: { component, data, props, visible: true },
-      };
-    });
-  };
+      }));
+    },
+    []
+  );
 
-  const hide = (key: string) => {
+  const hide = useCallback((key: string) => {
     setModals((prev) => {
       const modal = prev[key];
       if (!modal) return prev;
       return {
         ...prev,
-        [key]: { ...prev[key], visible: false },
+        [key]: { ...modal, visible: false },
       };
     });
-  };
+  }, []);
 
-  const destroy = (key: string) => {
+  const destroy = useCallback((key: string) => {
     setModals((prev) => {
-      const modal = prev[key];
-      if (!modal) return prev;
+      if (!prev[key]) return prev;
       const { [key]: _, ...rest } = prev;
       return rest;
     });
-  };
+  }, []);
+
+  const contextValue = useMemo<ModalContextValue>(
+    () => ({
+      show,
+      hide,
+      destroy,
+      modals,
+    }),
+    [show, hide, destroy, modals]
+  );
 
   return (
-    <Context.Provider
-      value={{
-        show,
-        hide,
-        destroy,
-        modals,
-      }}
-    >
+    <ModalContext.Provider value={contextValue}>
       {children}
-      {Object.keys(modals).map((key) => {
-        const { component: Component, data, props, visible } = modals[key];
+      {Object.entries(modals).map(([key, modal]) => {
+        const { component: Component, data, props, visible } = modal;
         return (
           <Component
             key={key}
@@ -130,35 +176,41 @@ export const ModalProvider: FC<any> = ({ children }) => {
           />
         );
       })}
-    </Context.Provider>
+    </ModalContext.Provider>
   );
 };
 
 /**
- * @description: hook
- * @param {FC} modal
- * @return {*}
+ * Custom hook for managing modals
+ * @param component - The modal component to render
+ * @param props - Static props to pass to the modal component
+ * @returns Modal control methods
  */
-export function useModal<T extends IModal>(
-  component: IComponent<T>,
+export function useModal<T extends ModalType>(
+  component: ModalComponent<T>,
   props?: T["props"]
 ): ModalResult<T["data"]> {
-  const context = useContext(Context);
-  const key = useMemo(() => getRandomKey(6), []);
+  const context = useContext(ModalContext);
+  
+  if (!context) {
+    throw new Error('useModal must be used within a ModalProvider');
+  }
+  
+  const key = useMemo(() => getRandomKey(), []);
 
   const show = useCallback(
-    (v?: T["data"]) => {
-      context?.show(key, component, v, props);
+    (data?: T["data"]) => {
+      context.show(key, component, data, props);
     },
     [component, key, context, props]
   );
 
   const hide = useCallback(() => {
-    context?.hide(key);
+    context.hide(key);
   }, [key, context]);
 
   const destroy = useCallback(() => {
-    context?.destroy(key);
+    context.destroy(key);
   }, [key, context]);
 
   return {

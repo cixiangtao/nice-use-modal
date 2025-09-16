@@ -7,6 +7,9 @@ import mdx from "@mdx-js/rollup";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    port: 3000,
+  },
   plugins: [
     { enforce: "pre", ...mdx(/* jsxImportSource: …, otherOptions… */) },
     react(),

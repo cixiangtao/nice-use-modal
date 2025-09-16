@@ -1,30 +1,27 @@
 import React, { useEffect } from "react";
 import { Modal, message } from "antd";
-import { ModalProps } from "~/packages/useModal";
+import { ModalProps, ModalType } from "../packages/useModal";
 
-interface IData {
+interface MyModalData {
   title?: string;
   desc?: string;
 }
 
-interface IProps {
+interface MyModalProps {
   onOk: () => void;
   onCancel?: () => void;
 }
 
-export default (
-  p: ModalProps<{
-    data: IData;
-    props: IProps;
-  }>
-) => {
+type MyModalType = ModalType<MyModalData, MyModalProps>;
+
+export default (p: ModalProps<MyModalType>) => {
   const { visible, hide, destroy, data = {}, props } = p;
 
   const { title = "新建", desc = "Hello World!" } = data;
-  const { onOk, onCancel } = props;
+  const { onOk, onCancel } = props || {};
 
   useEffect(() => {
-    message.info("执行show方法才会注册组件");
+    // message.info("执行show方法才会注册组件");
   }, []);
 
   return (
