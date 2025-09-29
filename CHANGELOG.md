@@ -1,5 +1,12 @@
 
 
+# [2.1.0](https://github.com/Mrcxt/nice-use-modal/compare/v2.0.0...v2.1.0) (2025-07-28)
+
+
+### Performance Improvements
+
+* ⚡️ 重构 ([b2ea6e2](https://github.com/Mrcxt/nice-use-modal/commit/b2ea6e2b25a01be62c62f102f849f403192c9534))
+
 # [2.0.0](https://github.com/Mrcxt/nice-use-modal/compare/v1.1.4...v2.0.0) (2023-11-01)
 
 ## [1.1.4](https://github.com/Mrcxt/nice-use-modal/compare/v1.1.3...v1.1.4) (2023-10-30)
