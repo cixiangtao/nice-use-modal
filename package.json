@@ -10,12 +10,12 @@
     "ts",
     "typescript"
   ],
+  "homepage": "https://github.com/cixiangtao/nice-use-modal",
   "license": "MIT",
-  "author": "周星星同学",
-  "homepage": "https://github.com/Mrcxt/nice-use-modal",
+  "author": "cixiangtao",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Mrcxt/nice-use-modal"
+    "url": "https://github.com/cixiangtao/nice-use-modal"
   },
   "files": [
     "dist",
