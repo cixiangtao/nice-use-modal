@@ -2,11 +2,10 @@
   "name": "nice-use-modal",
   "version": "2.1.0",
   "description": "A React modal hook",
-  "type": "module",
   "keywords": [
-    "react",
-    "modal",
     "hook",
+    "modal",
+    "react",
     "ts",
     "typescript"
   ],
@@ -21,72 +20,63 @@
     "dist",
     "README-zh‑cn.md"
   ],
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "dist/index.cjs",
   "module": "dist/index.mjs",
+  "types": "dist/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
-  "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "vite",
-    "build:demo": "vite build",
-    "build": "tsup",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "release": "npm run build && release-it --only-version"
+    "dev": "vp dev",
+    "build:demo": "vp build",
+    "build": "vp pack",
+    "check": "vp check",
+    "lint": "vp lint",
+    "format": "vp fmt --write",
+    "preview": "vp preview",
+    "release": "vp run build && release-it --only-version"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.6.7",
     "@mdx-js/rollup": "^2.3.0",
     "@release-it/conventional-changelog": "^7.0.0",
-    "@types/node": "^20.4.8",
+    "@types/node": "^20.19.43",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^6.0.3",
     "antd": "^5.8.2",
     "commitizen": "^4.2.5",
     "commitlint": "^17.6.7",
     "cz-git": "^1.7.0",
-    "eslint": "^8.46.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.3",
     "husky": "^8.0.3",
-    "lint-staged": "^13.1.2",
-    "prettier": "^2.7.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "release-it": "^15.6.0",
-    "stylelint": "^14.9.1",
-    "tsup": "^8.5.0",
+    "release-it": "^16.3.0",
     "typescript": "^5.0.2",
-    "vite": "^6.3.5"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{css,less,scss}": [
-      "stylelint --fix",
-      "prettier --write"
-    ]
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-git"
     }
   },
-  "stylelint": {
-    "extends": [
-      "stylelint-config-standard",
-      "stylelint-config-prettier"
-    ]
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.12.0",
+      "onFail": "download"
+    }
   }
 }

@@ -13,10 +13,10 @@
 
 A powerful React modal hook with TypeScript support that makes managing modals and drawers simple and type-safe.
 
-## ✨ What's New in v2.0
+## ✨ Highlights
 
 - 🎯 **Enhanced TypeScript Support**: Complete type safety with better inference
-- 🏗️ **Improved Build System**: Migrated from Vite to tsup for better compatibility
+- 🏗️ **Unified Build System**: Uses Vite+ for the demo app and library packaging
 - 🚀 **Performance Optimizations**: Better memoization and reduced re-renders
 - 📦 **Smaller Bundle Size**: Optimized build output
 - 🔧 **Better API Design**: More consistent and intuitive API
