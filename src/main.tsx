@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
+
 import { ModalProvider } from "../packages/useModal/index.tsx";
+import App from "./App.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <>
@@ -10,5 +11,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <App />
     </ModalProvider>
     {/* </React.StrictMode> */}
-  </>
+  </>,
 );

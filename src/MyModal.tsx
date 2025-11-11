@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
 import { Modal, message } from "antd";
+import React, { useEffect } from "react";
+
 import { ModalProps, ModalType } from "../packages/useModal";
 
 interface MyModalData {

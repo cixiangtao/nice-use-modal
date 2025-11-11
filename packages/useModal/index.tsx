@@ -5,20 +5,13 @@
  * @Author: @周星星同学
  */
 import type { FC, ReactNode } from "react";
-import {
-  createContext,
-  useContext,
-  useState,
-  useMemo,
-  useCallback,
-} from "react";
+import { createContext, useContext, useState, useMemo, useCallback } from "react";
 
 /**
  * Generate a random key for modal identification
  */
 function getRandomKey(length: number = 6): string {
-  const allChars =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const allChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let result = "";
 
   while (result.length < length) {
@@ -80,7 +73,7 @@ interface ModalContextValue {
     key: string,
     component: ModalComponent<T>,
     data?: T["data"],
-    props?: T["props"]
+    props?: T["props"],
   ) => void;
   hide: (key: string) => void;
   destroy: (key: string) => void;
@@ -105,7 +98,7 @@ const ModalContext = createContext<ModalContextValue | null>(null);
 export const useModalContext = (): ModalContextValue => {
   const context = useContext(ModalContext);
   if (!context) {
-    throw new Error('useModalContext must be used within a ModalProvider');
+    throw new Error("useModalContext must be used within a ModalProvider");
   }
   return context;
 };
@@ -121,14 +114,14 @@ export const ModalProvider: FC<ModalProviderProps> = ({ children }) => {
       key: string,
       component: ModalComponent<T>,
       data?: T["data"],
-      props?: T["props"]
+      props?: T["props"],
     ) => {
       setModals((prev) => ({
         ...prev,
         [key]: { component, data, props, visible: true },
       }));
     },
-    []
+    [],
   );
 
   const hide = useCallback((key: string) => {
@@ -157,7 +150,7 @@ export const ModalProvider: FC<ModalProviderProps> = ({ children }) => {
       destroy,
       modals,
     }),
-    [show, hide, destroy, modals]
+    [show, hide, destroy, modals],
   );
 
   return (
@@ -188,21 +181,21 @@ export const ModalProvider: FC<ModalProviderProps> = ({ children }) => {
  */
 export function useModal<T extends ModalType>(
   component: ModalComponent<T>,
-  props?: T["props"]
+  props?: T["props"],
 ): ModalResult<T["data"]> {
   const context = useContext(ModalContext);
-  
+
   if (!context) {
-    throw new Error('useModal must be used within a ModalProvider');
+    throw new Error("useModal must be used within a ModalProvider");
   }
-  
+
   const key = useMemo(() => getRandomKey(), []);
 
   const show = useCallback(
     (data?: T["data"]) => {
       context.show(key, component, data, props);
     },
-    [component, key, context, props]
+    [component, key, context, props],
   );
 
   const hide = useCallback(() => {

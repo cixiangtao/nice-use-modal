@@ -1,5 +1,6 @@
-import { useModal, ModalProps, ModalType } from "~/packages/useModal";
 import { Modal } from "antd";
+
+import { useModal, ModalProps, ModalType } from "~/packages/useModal";
 
 interface Data {
   title?: string;
