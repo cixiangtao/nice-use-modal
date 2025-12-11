@@ -42,6 +42,7 @@
     "build": "vp pack",
     "check": "vp check",
     "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
     "format": "vp fmt --write",
     "preview": "vp preview",
     "release": "vp run build && release-it --only-version"
