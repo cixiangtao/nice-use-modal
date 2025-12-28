@@ -26,6 +26,6 @@
     }
   },
   "types": ["vite/client"],
-  "include": ["src", "packages/useModal/index.tsx"],
+  "include": ["src", "packages/useModal"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
