@@ -6,10 +6,9 @@ import MyModal from "./MyModal";
 import { useMyModal } from "./use/useMyModal";
 
 export default () => {
-  const { show, hide, destroy } = useModal(MyModal, {
+  const { show, destroy } = useModal(MyModal, {
     onOk: () => {
       message.info("点击了确定");
-      hide();
     },
     onCancel: () => {
       message.info("点击了取消");
@@ -19,7 +18,6 @@ export default () => {
   const myModal = useMyModal({
     onOk: () => {
       message.info("点击了确定");
-      hide();
     },
     onCancel: () => {
       message.info("点击了取消");
@@ -37,7 +35,7 @@ export default () => {
   return (
     <>
       <p>{count}</p>
-      {/* <MyModal /> */} {/* 无需再手动注册组件 */}
+      {/* ModalProvider 会在 show 时按需挂载组件，无需在页面中预先渲染 <MyModal />。 */}
       <Divider children="useModal" />
       <Space>
         <Button

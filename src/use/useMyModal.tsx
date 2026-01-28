@@ -1,13 +1,14 @@
 import { Modal } from "antd";
 
-import { useModal, ModalProps, ModalType } from "~/packages/useModal";
+import { useModal } from "~/packages/useModal";
+import type { ModalProps } from "~/packages/useModal";
 
-interface Data {
+interface MyModalData {
   title?: string;
   desc?: string;
 }
 
-interface Props {
+interface MyModalProps {
   onOk: () => void;
   onCancel?: () => void;
 }
@@ -18,24 +19,23 @@ function MyModal({
   destroy,
   data,
   props,
-}: ModalProps<{
-  data: Data;
-  props: Props;
-}>) {
+}: ModalProps<{ data?: MyModalData; props: MyModalProps }>) {
   const { title = "新建", desc = "Hello World!" } = data || {};
-  const { onOk, onCancel } = props || {};
+  const { onOk, onCancel } = props;
 
   return (
     <Modal
       title={title}
       onOk={() => {
-        onOk?.();
+        onOk();
+        hide();
       }}
       open={visible}
       onCancel={() => {
         onCancel?.();
         hide();
       }}
+      // 延迟到关闭动画结束后销毁，避免组件提前卸载导致动画被截断。
       afterClose={() => destroy()}
     >
       <h2>{title}</h2>
@@ -44,4 +44,4 @@ function MyModal({
   );
 }
 
-export const useMyModal = (props: Props) => useModal(MyModal, props);
+export const useMyModal = (props: MyModalProps) => useModal(MyModal, props);

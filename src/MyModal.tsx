@@ -1,7 +1,6 @@
-import { Modal, message } from "antd";
-import React, { useEffect } from "react";
+import { Modal } from "antd";
 
-import { ModalProps, ModalType } from "../packages/useModal";
+import type { ModalProps } from "../packages/useModal";
 
 interface MyModalData {
   title?: string;
@@ -13,31 +12,37 @@ interface MyModalProps {
   onCancel?: () => void;
 }
 
-type MyModalType = ModalType<MyModalData, MyModalProps>;
+interface MyModalDefinition {
+  data?: MyModalData;
+  props: MyModalProps;
+}
 
-export default (p: ModalProps<MyModalType>) => {
-  const { visible, hide, destroy, data = {}, props } = p;
-
+export default function MyModal({
+  visible,
+  hide,
+  destroy,
+  data = {},
+  props,
+}: ModalProps<MyModalDefinition>) {
   const { title = "新建", desc = "Hello World!" } = data;
-  const { onOk, onCancel } = props || {};
-
-  useEffect(() => {
-    // message.info("执行show方法才会注册组件");
-  }, []);
+  const { onOk, onCancel } = props;
 
   return (
     <Modal
       title={title}
       onOk={() => {
-        onOk?.();
+        onOk();
+        hide();
       }}
       open={visible}
       onCancel={() => {
         onCancel?.();
+        hide();
       }}
-      afterClose={() => destroy()} // 对于有关闭动画的组件，需要在动画结束后再选择销毁组件，这样可以保留动画效果
+      // 先通过 hide 播放关闭动画，再在动画结束后销毁组件并清理状态。
+      afterClose={() => destroy()}
     >
       {desc}
     </Modal>
   );
-};
+}
