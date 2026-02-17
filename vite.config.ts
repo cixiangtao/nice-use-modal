@@ -6,6 +6,10 @@ import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins } from "vite-plus";
 
 export default defineConfig({
+  build: {
+    // Keep the demo output separate from the package artifacts in dist.
+    outDir: "demo-dist",
+  },
   fmt: {
     ignorePatterns: ["CHANGELOG.md", "README*.md", "docs/superpowers/**", "src/docs/**/*.md"],
     sortPackageJson: true,
@@ -37,10 +41,12 @@ export default defineConfig({
     sourcemap: true,
     minify: false,
     deps: {
+      // React must be shared with the consuming app instead of bundled into the library.
       neverBundle: [/^react(?:\/.*)?$/, /^react-dom(?:\/.*)?$/],
     },
     outDir: "dist",
     outExtensions({ format }) {
+      // Explicit extensions keep both module systems unambiguous under `type: module`.
       return format === "es" ? { js: ".mjs", dts: ".d.mts" } : { js: ".cjs", dts: ".d.cts" };
     },
   },
