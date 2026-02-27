@@ -4,348 +4,184 @@
 ![npm](https://badgen.net/npm/v/nice-use-modal)
 ![downloads](https://badgen.net/npm/dt/nice-use-modal?label=downloads)
 
-## Docs
+[中文文档](./README-zh%E2%80%91cn.md)
 
-- [English](./README.md)
-- [中文](./README-zh%E2%80%91cn.md)
-
-## Introduction
-
-A powerful React modal hook with TypeScript support that makes managing modals and drawers simple and type-safe.
-
-## ✨ Highlights
-
-- 🎯 **Enhanced TypeScript Support**: Complete type safety with better inference
-- 🏗️ **Unified Build System**: Uses Vite+ for the demo app and library packaging
-- 🚀 **Performance Optimizations**: Better memoization and reduced re-renders
-- 📦 **Smaller Bundle Size**: Optimized build output
-- 🔧 **Better API Design**: More consistent and intuitive API
-- 🐛 **Bug Fixes**: Resolved edge cases and improved stability
+A small, UI-agnostic React hook for rendering modals and drawers imperatively while preserving the surrounding React context.
 
 ## Features
 
-- 🎯 **Type-safe**: Full TypeScript support with strict typing
-- 🚀 **No UI Dependency**: Works with any UI library (Ant Design, Material-UI, etc.)
-- 🔄 **No Side Effects**: Uses React Context to maintain clean state management
-- 🎨 **Flexible**: Use as hooks or call imperatively
-- 🧹 **Auto Cleanup**: Internal state automatically resets when modal closes
-- 📦 **Lightweight**: Minimal dependencies and small bundle size
+- Named, definition-driven TypeScript API
+- Independent data-only, props-only, and combined modal definitions
+- Modal components mount only after `show`
+- `hide` preserves component state; `destroy` unmounts it
+- Stable action context avoids re-rendering hook owners on modal updates
+- Safe cleanup for owner unmounts and stale close-animation callbacks
 
 ## Installation
 
 ```bash
-# npm
-npm install nice-use-modal
-
-# pnpm
 pnpm add nice-use-modal
-
-# yarn
-yarn add nice-use-modal
 ```
 
-## Quick Start
+React 18 and React 19 are supported peer dependencies.
 
-### 1. Setup Provider
+## Setup
 
-Wrap your app with `ModalProvider`:
-
-**main.tsx**
 ```tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { ModalProvider } from 'nice-use-modal';
-import App from './App';
+import { ModalProvider } from "nice-use-modal";
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <ModalProvider>
-      <App />
-    </ModalProvider>
-  </React.StrictMode>
+root.render(
+  <ModalProvider>
+    <App />
+  </ModalProvider>,
 );
 ```
 
-### 2. Create Modal Component
+## Data and props
 
-**MyModal.tsx**
+The generic definition has two independent named fields:
+
+- `data`: dynamic input passed to each `show` call.
+- `props`: configuration captured from `useModal` when `show` is called.
+
+The presence and optionality of each field determine the corresponding function arguments.
+
+### Data only
+
 ```tsx
-import React, { useEffect } from 'react';
-import { Modal, message } from 'antd';
-import { ModalProps, ModalType } from 'nice-use-modal';
+import { ModalProps, useModal } from "nice-use-modal";
 
-// Define your modal's data and props types
-interface MyModalData {
-  title?: string;
-  desc?: string;
+interface PreviewDefinition {
+  data: { imageUrl: string };
 }
 
-interface MyModalProps {
-  onOk: () => void;
-  onCancel?: () => void;
+function PreviewModal({ data, visible, hide }: ModalProps<PreviewDefinition>) {
+  return (
+    <Dialog open={visible} onClose={hide}>
+      <img src={data.imageUrl} alt="Preview" />
+    </Dialog>
+  );
 }
 
-// Create typed modal type
-type MyModalType = ModalType<MyModalData, MyModalProps>;
+const preview = useModal(PreviewModal);
+preview.show({ imageUrl: "/preview.png" });
+```
 
-// Modal component with full TypeScript support
-const MyModal: React.FC<ModalProps<MyModalType>> = ({
+### Props only
+
+```tsx
+interface ConfirmDefinition {
+  props: { onConfirm: () => void };
+}
+
+function ConfirmModal({ props, visible, hide }: ModalProps<ConfirmDefinition>) {
+  return (
+    <Dialog open={visible} onClose={hide}>
+      <button onClick={props.onConfirm}>Confirm</button>
+    </Dialog>
+  );
+}
+
+const confirm = useModal(ConfirmModal, { onConfirm: save });
+confirm.show();
+```
+
+### Optional data with required props
+
+```tsx
+interface EditDefinition {
+  data?: {
+    id?: string;
+    title?: string;
+  };
+  props: {
+    onSuccess: () => void;
+  };
+}
+
+function EditModal({
+  data = {},
+  props,
   visible,
   hide,
   destroy,
-  data = {},
-  props
-}) => {
-  const { title = 'New', desc = 'Hello World!' } = data;
-  const { onOk, onCancel } = props || {};
-
-  useEffect(() => {
-    message.info('Modal component mounted!');
-  }, []);
-
+}: ModalProps<EditDefinition>) {
   return (
-    <Modal
-      title={title}
-      open={visible}
-      onOk={() => {
-        onOk?.();
-        hide();
-      }}
-      onCancel={() => {
-        onCancel?.();
-        hide();
-      }}
-      afterClose={() => destroy()} // Preserve animations
-    >
-      {desc}
-    </Modal>
+    <Dialog open={visible} onClose={hide} afterClose={destroy}>
+      <h2>{data.title ?? "Create"}</h2>
+      <button onClick={props.onSuccess}>Save</button>
+    </Dialog>
   );
-};
-
-export default MyModal;
-```
-
-### 3. Use Modal in Components
-
-**HomePage.tsx**
-```tsx
-import React from 'react';
-import { Button, Space, message } from 'antd';
-import { useModal } from 'nice-use-modal';
-import MyModal from './MyModal';
-
-const HomePage: React.FC = () => {
-  // Initialize modal with props
-  const { show, hide, destroy } = useModal(MyModal, {
-    onOk: () => {
-      message.success('Operation confirmed!');
-    },
-    onCancel: () => {
-      message.info('Operation cancelled');
-    },
-  });
-
-  return (
-    <Space>
-      <Button
-        type="primary"
-        onClick={() => show()}
-      >
-        Create New
-      </Button>
-      
-      <Button
-        onClick={() => show({
-          title: 'Edit Item',
-          desc: 'You can pass dynamic data when showing the modal.',
-        })}
-      >
-        Edit Item
-      </Button>
-      
-      <Button 
-        danger 
-        onClick={() => destroy()}
-      >
-        Destroy Modal
-      </Button>
-    </Space>
-  );
-};
-
-export default HomePage;
-```
-
-### 4. Alternative: Inline Modal Definition
-
-You can also define modals inline for simpler use cases:
-
-```tsx
-import React from 'react';
-import { useModal, ModalProps, ModalType } from 'nice-use-modal';
-import { Modal } from 'antd';
-
-interface SimpleModalData {
-  message: string;
 }
 
-interface SimpleModalProps {
-  onConfirm: () => void;
-}
-
-type SimpleModalType = ModalType<SimpleModalData, SimpleModalProps>;
-
-const useSimpleModal = (props: SimpleModalProps) => {
-  return useModal<SimpleModalType>(
-    ({ visible, hide, destroy, data, props: modalProps }) => (
-      <Modal
-        open={visible}
-        title="Confirmation"
-        onOk={() => {
-          modalProps?.onConfirm();
-          hide();
-        }}
-        onCancel={hide}
-        afterClose={destroy}
-      >
-        {data?.message || 'Are you sure?'}
-      </Modal>
-    ),
-    props
-  );
-};
-
-// Usage
-const MyComponent: React.FC = () => {
-  const { show } = useSimpleModal({
-    onConfirm: () => console.log('Confirmed!')
-  });
-
-  return (
-    <button onClick={() => show({ message: 'Delete this item?' })}>
-      Delete
-    </button>
-  );
-};
+const editor = useModal(EditModal, { onSuccess: refresh });
+editor.show();
+editor.show({ id: "1", title: "Edit" });
 ```
 
-## API Reference
+Use an optional definition field when its corresponding argument may be omitted:
 
-### useModal
-
-The main hook for managing modals.
-
-```tsx
-import { useModal } from 'nice-use-modal';
-import type { ModalProps, ModalResult, ModalType } from 'nice-use-modal';
-
-const result: ModalResult<T['data']> = useModal<T extends ModalType>(
-  component: ModalComponent<T>,
-  props?: T['props']
-);
+```ts
+type RequiredData = { data: { id: string } }; // show(data)
+type OptionalData = { data?: { id?: string } }; // show(data?)
+type RequiredProps = { props: Options }; // useModal(component, props)
+type OptionalProps = { props?: Options }; // useModal(component, props?)
 ```
 
-**Parameters:**
-- `component`: Modal component or render function
-- `props`: Static props passed to modal (optional)
+## API
 
-**Returns:**
-- `show(data?)`: Function to display the modal
-- `hide()`: Function to hide the modal
-- `destroy()`: Function to destroy the modal
+### `useModal(component, props?)`
 
-### ModalProps
+Returns:
 
-Props passed to modal components:
+- `show(data?)`: mounts or shows the modal with the latest data.
+- `hide()`: sets `visible` to `false` while preserving the component instance.
+- `destroy()`: unmounts the modal and clears its stored data and props.
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `visible` | `boolean` | Whether the modal is visible |
-| `hide` | `() => void` | Function to hide the modal |
-| `destroy` | `() => void` | Function to destroy the modal |
-| `data` | `T['data']` | Dynamic data passed when showing |
-| `props` | `T['props']` | Static props passed during registration |
+`props` is a snapshot taken when `show` executes. Changing the value passed to `useModal` does not reactively update an already open modal; call `show` again to provide the latest snapshot.
 
-### ModalType
+### `ModalProps<Definition>`
 
-Base interface for defining modal types:
+Every modal receives these controls:
 
-```tsx
-interface ModalType<D = unknown, P = unknown> {
-  data?: D;
-  props?: P;
+```ts
+interface ModalControls {
+  visible: boolean;
+  hide: () => void;
+  destroy: () => void;
 }
 ```
 
-### ModalProvider
+It receives `data` and/or `props` only when those fields exist in its definition.
 
-Provider component that manages modal context:
+### `ModalProvider`
 
-```tsx
-interface ModalProviderProps {
-  children: React.ReactNode;
+Mount one provider above every component that calls `useModal`. A modal is automatically destroyed when its owning hook unmounts.
+
+## Migrating from v2
+
+v3 replaces the positional `ModalType<Data, Props>` carrier with a named definition object.
+
+```ts
+// v2
+type EditModalType = ModalType<EditData, EditProps>;
+type EditModalComponentProps = ModalProps<EditModalType>;
+
+// v3
+interface EditModalDefinition {
+  data: EditData;
+  props: EditProps;
 }
+type EditModalComponentProps = ModalProps<EditModalDefinition>;
 ```
 
-## Migration Guide
+Important changes:
 
-### From v1.x to v2.0
-
-1. **TypeScript improvements**: Better type inference, no breaking changes to existing code
-2. **Build system**: Updated build output, but API remains the same
-3. **Performance**: Automatic optimizations, no code changes needed
-
-### Key Concepts
-
-**hide vs destroy:**
-- `hide()`: Hides modal but preserves state and component instance
-- `destroy()`: Completely removes modal and cleans up state
-- For animated modals: use `hide()` first, then `destroy()` in `afterClose`
-
-**data vs props:**
-- `data`: Dynamic data passed each time `show()` is called
-- `props`: Static configuration passed once during `useModal()` initialization
-
-## Examples with Popular UI Libraries
-
-### Ant Design
-
-```tsx
-import { Modal } from 'antd';
-import { ModalProps, ModalType } from 'nice-use-modal';
-
-type AntModalType = ModalType<{ title: string }, { onOk: () => void }>;
-
-const AntModal: React.FC<ModalProps<AntModalType>> = ({ visible, hide, destroy, data, props }) => (
-  <Modal
-    open={visible}
-    title={data?.title}
-    onOk={props?.onOk}
-    onCancel={hide}
-    afterClose={destroy}
-  >
-    Modal content
-  </Modal>
-);
-```
-
-### Material-UI
-
-```tsx
-import { Dialog, DialogTitle, DialogContent } from '@mui/material';
-import { ModalProps, ModalType } from 'nice-use-modal';
-
-type MuiModalType = ModalType<{ title: string }, { onClose: () => void }>;
-
-const MuiModal: React.FC<ModalProps<MuiModalType>> = ({ visible, hide, data, props }) => (
-  <Dialog open={visible} onClose={hide}>
-    <DialogTitle>{data?.title}</DialogTitle>
-    <DialogContent>
-      Modal content
-    </DialogContent>
-  </Dialog>
-);
-```
+- Required definition fields now produce required function arguments.
+- Use `data?: Data` when `show()` without data should remain valid.
+- Use `props?: Props` when `useModal(component)` without props should remain valid.
+- `useModalContext` and `ModalType` are no longer public APIs.
+- Hook-owned modals are destroyed when their owner unmounts.
 
 ## License
 

@@ -4,201 +4,183 @@
 ![npm](https://badgen.net/npm/v/nice-use-modal)
 ![downloads](https://badgen.net/npm/dt/nice-use-modal?label=downloads)
 
-## 前言
+[English](./README.md)
 
-在react中使用modal / drawer是一个比较令人心烦的痛点。
-nice-use-modal可以帮助你解决这一烦恼。
+一个轻量、无 UI 依赖的 React Modal Hook。它支持命令式打开 Modal 或 Drawer，同时保留当前 React 上下文。
 
 ## 特性
 
-- 🚀 无UI依赖：内部仅负责维护状态和渲染，因此你可以使用任何你喜欢的UI库以及组件。
-- 🚀 无副作用：内部使用createContext维护上下文，避免render方式丢失全局配置。
-- 🚀 更灵活：hooks的方式使用，命令式调用，不需要在组件中引入ReactNode。
-- 🚀 更简单：弹窗关闭时会自动重置内部状态，无序手动维护。
-- 🚀 TS支持：内部使用TS编写，支持TS提示。
+- 使用具名 Definition 描述 TypeScript 类型
+- 同等支持只有 data、只有 props，以及两者兼有的弹窗
+- 只有执行 `show` 后才挂载组件
+- `hide` 保留组件状态，`destroy` 真正卸载组件
+- Modal 状态变化不会导致 `useModal` 所属组件重新渲染
+- 自动处理所属组件卸载和旧关闭动画回调
 
 ## 安装
 
-```sh
-# pnpm
+```bash
 pnpm add nice-use-modal
-
-# yarn
-yarn add nice-use-modal
-
-# npm
-npm i nice-use-modal -S
 ```
 
-## Examples
+React 18 和 React 19 作为 peer dependency 得到支持。
 
-main.tsx
+## 注册 Provider
 
 ```tsx
 import { ModalProvider } from "nice-use-modal";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-    <ModalProvider>
-      <App />
-    </ModalProvider>
+root.render(
+  <ModalProvider>
+    <App />
+  </ModalProvider>,
 );
 ```
 
-MyModal.tsx
+## data 与 props
 
-> Drawer和Modal的使用方式一致。
+Definition 中有两个互相独立的具名字段：
+
+- `data`：每次执行 `show` 时传入的动态数据。
+- `props`：传给 `useModal` 的配置，在执行 `show` 时生成快照。
+
+字段是否存在、是否可选，会直接决定对应函数参数是否存在、是否必填。
+
+### 只有 data
 
 ```tsx
-import React, { useEffect } from "react";
-import { Modal, message } from "antd";
-import { ModalProps } from "nice-use-modal";
-
-interface IData {
-  title?: string;
-  desc?: string;
+interface PreviewDefinition {
+  data: { imageUrl: string };
 }
 
-interface IProps {
-  onOk: () => void;
-  onCancel?: () => void;
-}
-
-export default (p: ModalProps<{
-  data: IData;
-  props: IProps;
-}>) => {
-  const { visible, hide, destroy, data = {}, props } = p;
-
-  const { title = "新建", desc = "Hello World!" } = data;
-  const { onOk, onCancel } = props;
-
-  useEffect(() => {
-    message.info("执行show方法才会注册组件");
-  }, []);
-
+function PreviewModal({ data, visible, hide }: ModalProps<PreviewDefinition>) {
   return (
-    <Modal
-      title={title}
-      onOk={() => {
-        onOk?.();
-        hide();
-      }}
-      open={visible}
-      onCancel={() => {
-        onCancel?.();
-        hide();
-      }}
-      afterClose={() => destroy()} // 对于有关闭动画的组件，需要在动画结束后再选择销毁组件，这样可以保留动画效果
-    >
-      {desc}
+    <Modal open={visible} onCancel={hide}>
+      <img src={data.imageUrl} alt="预览" />
     </Modal>
   );
-};
-```
-
-home.tsx
-
-```tsx
-import MyModal from "./MyModal";
-import { Button, Space, message } from "antd";
-import { useModal } from "nice-use-modal";
-
-export default () => {
-  const { show, hide, destroy } = useModal(MyModal, {
-    onOk: () => {
-      message.success("ok");
-    },
-    onCancel: () => {
-      message.error("cancel");
-    },
-  });
-
-  return (
-    <>
-      <Space>
-        <Button
-          onClick={() => {
-            show();
-          }}
-        >
-          新建
-        </Button>
-        <Button
-          onClick={() =>
-            show({
-              title: "编辑",
-              desc: "你可以实时传入data，以供组件内部使用",
-            })
-          }
-        >
-          编辑
-        </Button>
-        <Button onClick={() => destroy()}>销毁</Button>
-      </Space>
-    </>
-  );
-};
-```
-
-或者你可以直接使用useModal的方式（我更推荐这种方式）
-
-```tsx
-// MyModal.tsx
-import { useModal } from "nice-use-modal";
-
-export default (props: IProps;)=>{
-  return useModal<{
-    data: IData;
-  }>(({
-    visible,
-    hide,
-    destroy,
-    data,
-  })=>{
-    return <div>hello world</div>
-  })
 }
+
+const preview = useModal(PreviewModal);
+preview.show({ imageUrl: "/preview.png" });
 ```
 
-这样你就可以在任何地方使用Modal了。
+### 只有 props
 
 ```tsx
-import useMyModal from './MyModal'
+interface ConfirmDefinition {
+  props: { onConfirm: () => void };
+}
 
-const {show,hide,destroy} = useMyModal({
-  onOk:()=>{},
-  onCancel:()=>{}
-})
+function ConfirmModal({ props, visible, hide }: ModalProps<ConfirmDefinition>) {
+  return (
+    <Modal open={visible} onCancel={hide}>
+      <button onClick={props.onConfirm}>确定</button>
+    </Modal>
+  );
+}
+
+const confirm = useModal(ConfirmModal, { onConfirm: save });
+confirm.show();
+```
+
+### 可选 data 与必填 props
+
+```tsx
+interface EditDefinition {
+  data?: {
+    id?: string;
+    title?: string;
+  };
+  props: {
+    onSuccess: () => void;
+  };
+}
+
+function EditModal({
+  data = {},
+  props,
+  visible,
+  hide,
+  destroy,
+}: ModalProps<EditDefinition>) {
+  return (
+    <Modal open={visible} onCancel={hide} afterClose={destroy}>
+      <h2>{data.title ?? "新建"}</h2>
+      <button onClick={props.onSuccess}>保存</button>
+    </Modal>
+  );
+}
+
+const editor = useModal(EditModal, { onSuccess: refresh });
+editor.show();
+editor.show({ id: "1", title: "编辑" });
+```
+
+字段规则如下：
+
+```ts
+type RequiredData = { data: { id: string } }; // show(data)
+type OptionalData = { data?: { id?: string } }; // show(data?)
+type RequiredProps = { props: Options }; // useModal(component, props)
+type OptionalProps = { props?: Options }; // useModal(component, props?)
 ```
 
 ## API
 
-```tsx
-import { useModal } from 'nice-use-modal';
-import type { ModalProps , ModalResult } from 'nice-use-modal';
+### `useModal(component, props?)`
 
-const Result:ModalResult = useModal<{data:T;props:K}>((Props:ModalProps<{data:T;props:K}>)=>{},props)
+返回：
+
+- `show(data?)`：挂载或显示 Modal，并写入最新 data。
+- `hide()`：将 `visible` 设为 `false`，但保留组件实例和内部状态。
+- `destroy()`：卸载 Modal，并清理保存的 data 与 props。
+
+`props` 是执行 `show` 时的快照。修改传给 `useModal` 的值不会响应式更新已经打开的 Modal；再次执行 `show` 才会取得最新值。
+
+### `ModalProps<Definition>`
+
+每个 Modal 都会收到以下控制属性：
+
+```ts
+interface ModalControls {
+  visible: boolean;
+  hide: () => void;
+  destroy: () => void;
+}
 ```
 
-### Props
+只有 Definition 声明了 `data` 或 `props`，组件才会在类型上收到对应字段。
 
-| 参数    | 说明                      | 类型                                   | 默认值      | 版本    |
-| ------- | ------------------------- | -------------------------------------- | ----------- | ------- |
-| visible | 是否显示                  | `boolean`                              | false       | -       |
-| hide    | 隐藏                      | `() => void`                           | -           | -       |
-| destroy | 销毁                      | `() => void`                           | -           | -       |
-| data    | Modal打开时传入的data     | `T \| Record<string,any> \| undefined` | -           | -       |
-| props   | 注册 Modal 时传入的 props | `K`                                    | `undefined` | `1.1.0` |
+### `ModalProvider`
 
-> 注：hide 和 destroy 的区别在于，hide 会保留 Modal 的状态，destroy 会销毁 Modal 的状态。
-> 对于有关闭动画的 Modal，可以先使用 hide，等动画结束后再 destroy，**直接使用 destroy 会导致动画无法正常结束。**
+所有调用 `useModal` 的组件都必须处于 Provider 下方。调用 Hook 的所属组件卸载时，对应 Modal 会自动销毁。
 
-> 注: data 与 props 的区别在于，data 是每次打开 Modal 时传入的，props 是注册 Modal 时传入的，props 不会变化。
+## 从 v2 迁移
 
-### Result
+v3 使用具名 Definition 替换 `ModalType<Data, Props>`：
 
-| 参数    | 说明 | 类型                                       | 默认值 |
-| ------- | ---- | ------------------------------------------ | ------ |
-| show    | 显示 | `(data?: T \| Record<string,any>) => void` | -      |
-| hide    | 隐藏 | `() => void`                               | -      |
-| destroy | 销毁 | `() => void`                               | -      |
+```ts
+// v2
+type EditModalType = ModalType<EditData, EditProps>;
+type EditModalComponentProps = ModalProps<EditModalType>;
+
+// v3
+interface EditModalDefinition {
+  data: EditData;
+  props: EditProps;
+}
+type EditModalComponentProps = ModalProps<EditModalDefinition>;
+```
+
+需要注意：
+
+- Definition 中的必填字段现在会生成必填函数参数。
+- 需要允许 `show()` 时，将字段声明成 `data?: Data`。
+- 需要允许 `useModal(component)` 时，将字段声明成 `props?: Props`。
+- `useModalContext` 和 `ModalType` 不再是公共 API。
+- 调用 Hook 的所属组件卸载时，Modal 会自动销毁。
+
+## License
+
+MIT
