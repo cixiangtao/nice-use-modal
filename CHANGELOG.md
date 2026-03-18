@@ -1,4 +1,23 @@
 
+# 3.0.0 (2026-07-13)
+
+### Breaking Changes
+
+- Replace `ModalType<Data, Props>` with named modal definitions such as `{ data?: Data; props: Props }`.
+- Enforce required and optional `data` and `props` fields in `show` and `useModal` calls.
+- Remove the public `useModalContext` API.
+- Destroy hook-owned modals when their owner unmounts.
+
+### Performance Improvements
+
+- Keep modal actions in a stable Context so modal updates do not re-render hook owners.
+- Memoize modal hosts so unrelated modal instances do not re-render.
+
+### Bug Fixes
+
+- Ignore stale close-animation callbacks after a modal is shown again.
+- Separate demo and library output directories to prevent broken package contents.
+
 
 # [2.1.0](https://github.com/cixiangtao/nice-use-modal/compare/v2.0.0...v2.1.0) (2025-07-28)
 
