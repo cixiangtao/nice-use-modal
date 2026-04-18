@@ -17,8 +17,7 @@
     "url": "https://github.com/cixiangtao/nice-use-modal"
   },
   "files": [
-    "dist",
-    "README-zh‑cn.md"
+    "dist"
   ],
   "type": "module",
   "sideEffects": false,
@@ -40,6 +39,7 @@
   "scripts": {
     "dev": "vp dev",
     "build:demo": "vp build",
+    "build:site": "node scripts/build-site.mjs",
     "build": "vp pack",
     "test": "vp test run --dom",
     "check": "vp check",
