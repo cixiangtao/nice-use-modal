@@ -1,48 +1,146 @@
-import { Modal } from "antd";
+import { useEffect, useId, useRef, useState } from "react";
 
 import type { ModalProps } from "../packages/useModal";
 
-interface MyModalData {
-  title?: string;
-  desc?: string;
+interface DemoModalData {
+  description: string;
+  eyebrow: string;
+  id: string;
+  initialName: string;
+  title: string;
 }
 
-interface MyModalProps {
-  onOk: () => void;
-  onCancel?: () => void;
+interface DemoModalOwnerProps {
+  onLifecycleChange: (status: "destroyed" | "hidden") => void;
+  onSubmit: (name: string) => void;
 }
 
-interface MyModalDefinition {
-  data?: MyModalData;
-  props: MyModalProps;
+interface DemoModalDefinition {
+  data: DemoModalData;
+  props: DemoModalOwnerProps;
 }
 
-export default function MyModal({
-  visible,
-  hide,
+function CloseIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20">
+      <path d="m4 4 12 12M16 4 4 16" />
+    </svg>
+  );
+}
+
+export default function DemoModal({
+  data,
   destroy,
-  data = {},
+  hide,
   props,
-}: ModalProps<MyModalDefinition>) {
-  const { title = "新建", desc = "Hello World!" } = data;
-  const { onOk, onCancel } = props;
+  visible,
+}: ModalProps<DemoModalDefinition>) {
+  const [name, setName] = useState(data.initialName);
+  const titleId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setName(data.initialName);
+  }, [data.id, data.initialName]);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    inputRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        hide();
+        props.onLifecycleChange("hidden");
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [hide, props, visible]);
+
+  const closeAndPreserve = () => {
+    hide();
+    props.onLifecycleChange("hidden");
+  };
+
+  const closeAndReset = () => {
+    hide();
+    window.setTimeout(() => {
+      destroy();
+      props.onLifecycleChange("destroyed");
+    }, 220);
+  };
+
+  const submit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const nextName = name.trim();
+
+    if (!nextName) {
+      inputRef.current?.focus();
+      return;
+    }
+
+    props.onSubmit(nextName);
+    hide();
+  };
 
   return (
-    <Modal
-      title={title}
-      onOk={() => {
-        onOk();
-        hide();
+    <div
+      aria-hidden={!visible}
+      className="modal-layer"
+      data-visible={visible}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) closeAndPreserve();
       }}
-      open={visible}
-      onCancel={() => {
-        onCancel?.();
-        hide();
-      }}
-      // 先通过 hide 播放关闭动画，再在动画结束后销毁组件并清理状态。
-      afterClose={() => destroy()}
     >
-      {desc}
-    </Modal>
+      <form
+        aria-labelledby={titleId}
+        aria-modal="true"
+        className="demo-modal"
+        onSubmit={submit}
+        role="dialog"
+      >
+        <div className="modal-topline">
+          <span>{data.eyebrow}</span>
+          <button aria-label="Close and preserve draft" onClick={closeAndPreserve} type="button">
+            <CloseIcon />
+          </button>
+        </div>
+
+        <div className="modal-heading">
+          <span className="modal-index">/ 01</span>
+          <div>
+            <h2 id={titleId}>{data.title}</h2>
+            <p>{data.description}</p>
+          </div>
+        </div>
+
+        <label htmlFor={`${titleId}-name`}>
+          Project name
+          <input
+            autoComplete="off"
+            id={`${titleId}-name`}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="e.g. Midnight release"
+            ref={inputRef}
+            value={name}
+          />
+        </label>
+
+        <div className="modal-hint">
+          <span>TIP</span>
+          Close and reopen this modal—your draft will still be here.
+        </div>
+
+        <div className="modal-actions">
+          <button className="reset-button" onClick={closeAndReset} type="button">
+            Close &amp; reset
+          </button>
+          <button className="save-button" type="submit">
+            Save project <span>→</span>
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
