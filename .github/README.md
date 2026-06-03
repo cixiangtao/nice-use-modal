@@ -4,21 +4,30 @@
 [![npm downloads](https://badgen.net/npm/dt/nice-use-modal?label=downloads)](https://www.npmjs.com/package/nice-use-modal)
 ![license](https://badgen.net/npm/license/nice-use-modal)
 
-An imperative, type-safe modal controller for React. Open any modal from a hook, keep it inside your React tree, and choose whether closing should preserve or discard its state.
+A small, headless modal controller for React. Open a modal from a hook, pass it fully typed inputs, and decide whether closing should preserve or discard its local state.
 
-[Live demo](https://nice-use-modal.cixiangtao.chatgpt.site) · [npm](https://www.npmjs.com/package/nice-use-modal) · [GitHub](https://github.com/cixiangtao/nice-use-modal)
+[Live demo](https://nice-use-modal.cixiangtao.chatgpt.site) · [npm](https://www.npmjs.com/package/nice-use-modal) · [Changelog](../CHANGELOG.md)
 
-## Why nice-use-modal?
+```tsx
+const confirmModal = useModal(ConfirmModal, {
+  onConfirm: deleteProject,
+});
 
-- **Imperative control** — call `show`, `hide`, or `destroy` without managing `visible` state in the owner.
-- **React context stays available** — modals render below `ModalProvider`, so theme, locale, router, and application context keep working.
-- **Lazy mounting** — a modal is not mounted until its first `show` call.
-- **Explicit lifecycle** — `hide` preserves local state; `destroy` unmounts the component.
-- **Precise TypeScript inference** — required and optional `data` and `props` fields produce matching call signatures.
-- **UI-library agnostic** — use it with Ant Design, MUI, Radix, a native dialog, or your own components.
-- **React 18 and 19 ready** — React is a peer dependency and is never bundled.
+confirmModal.show({ id: "project-1", title: "Delete this project?" });
+```
 
-## Installation
+## Why use it?
+
+- **No owner-managed modal state** — call `show`, `hide`, and `destroy` instead of wiring `visible` and temporary data through the parent.
+- **Still idiomatic React** — modals are rendered by `ModalProvider`, so they can consume your theme, locale, router, store, and other context.
+- **Mounted only when needed** — a modal does not render before its first `show()` call.
+- **State retention is explicit** — `hide()` keeps component state; `destroy()` unmounts the component and starts fresh next time.
+- **Inputs stay type-safe** — TypeScript derives the arguments of `useModal()` and `show()` from the modal component.
+- **Bring your own UI** — use Ant Design, MUI, Radix, a native dialog, or any component you already have.
+
+Requires React 18 or 19.
+
+## Install
 
 ```bash
 pnpm add nice-use-modal
@@ -34,7 +43,9 @@ yarn add nice-use-modal
 
 ## Quick start
 
-Mount one provider above every component that uses `useModal`:
+### 1. Add the provider
+
+Place `ModalProvider` above every component that calls `useModal`. Managed modals are rendered at the end of this provider, inside the same React tree.
 
 ```tsx
 import { ModalProvider } from "nice-use-modal";
@@ -47,22 +58,29 @@ createRoot(document.getElementById("root")!).render(
 );
 ```
 
-Describe the values passed when the modal is shown as `data`, and the values configured by its owner as `props`:
+### 2. Define a modal
+
+Declare the modal's inputs in one definition:
+
+- `data` is passed when the modal is shown.
+- `props` is configured by the component that owns the hook.
+
+`visible`, `hide`, and `destroy` are injected automatically.
 
 ```tsx
-import { ModalProps, useModal } from "nice-use-modal";
+import type { ModalProps } from "nice-use-modal";
 
 interface ConfirmModalDefinition {
   data: {
+    id: string;
     title: string;
-    description?: string;
   };
   props: {
-    onConfirm: () => void;
+    onConfirm: (id: string) => void;
   };
 }
 
-function ConfirmModal({
+export function ConfirmModal({
   data,
   props,
   visible,
@@ -72,14 +90,13 @@ function ConfirmModal({
   if (!visible) return null;
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="confirm-title">
-      <h2 id="confirm-title">{data.title}</h2>
-      {data.description && <p>{data.description}</p>}
+    <div aria-labelledby="confirm-modal-title" aria-modal="true" role="dialog">
+      <h2 id="confirm-modal-title">{data.title}</h2>
 
       <button onClick={hide}>Cancel</button>
       <button
         onClick={() => {
-          props.onConfirm();
+          props.onConfirm(data.id);
           destroy();
         }}
       >
@@ -88,18 +105,26 @@ function ConfirmModal({
     </div>
   );
 }
+```
 
-function DeleteButton() {
-  const confirm = useModal(ConfirmModal, {
-    onConfirm: () => console.log("Deleted"),
+### 3. Open it from a hook
+
+TypeScript infers both arguments from `ConfirmModal`:
+
+```tsx
+import { useModal } from "nice-use-modal";
+
+function DeleteProjectButton() {
+  const confirmModal = useModal(ConfirmModal, {
+    onConfirm: (id) => deleteProject(id),
   });
 
   return (
     <button
       onClick={() =>
-        confirm.show({
-          title: "Delete project?",
-          description: "This action cannot be undone.",
+        confirmModal.show({
+          id: "project-1",
+          title: "Delete this project?",
         })
       }
     >
@@ -109,20 +134,55 @@ function DeleteButton() {
 }
 ```
 
-For components with a close animation, hide first and destroy after the animation completes:
+There is no `visible` state or temporary project data in `DeleteProjectButton`. The component that defines the modal owns its UI state; the hook owner only supplies inputs and tells it when to open.
+
+## Lifecycle
+
+Each `useModal()` call owns one modal instance.
+
+| Call | Mounted | Visible | Local component state |
+| --- | --- | --- | --- |
+| Before the first `show()` | No | No | Not created |
+| `show(data?)` | Yes | Yes | Created on first show, otherwise preserved |
+| `hide()` | Yes | No | Preserved |
+| `destroy()` | No | No | Discarded |
+
+Calling `show()` again updates the captured `data` and `props`, but it does not remount the modal. Reset local state in response to changed data when that is the desired behavior, or call `destroy()` before opening a completely fresh instance.
+
+When the component that called `useModal()` unmounts, its modal is destroyed automatically. A delayed callback from an older render cannot hide or destroy a newer `show()` generation.
+
+### Closing animations
+
+Unmounting immediately can cut off a UI library's exit animation. Hide first, then destroy from the library's after-close callback:
 
 ```tsx
-<YourModal open={visible} onClose={hide} afterClose={destroy} />
+function EditModal({ visible, hide, destroy }: ModalProps<EditModalDefinition>) {
+  return (
+    <Modal
+      open={visible}
+      onCancel={hide}
+      afterClose={destroy}
+    >
+      {/* ... */}
+    </Modal>
+  );
+}
 ```
 
-## Data and props
+Omit `destroy` from `afterClose` when reopening should preserve the modal's draft state.
 
-The modal definition has two independent fields:
+## Understanding `data` and `props`
 
-- `data` is supplied to each `show` call. Use it for the item being viewed or edited.
-- `props` is supplied to `useModal` and captured when `show` runs. Use it for callbacks and owner-level configuration.
+Both values are snapshots captured by `show()`; they serve different call sites:
 
-Whether those fields are required, optional, or absent determines the callable API:
+| Input | Passed to | Best suited for |
+| --- | --- | --- |
+| `data` | `controller.show(data)` | The record being viewed, edited, or confirmed |
+| `props` | `useModal(Component, props)` | Callbacks and owner-level configuration |
+
+Changing the `props` object in the hook owner does not update an already open modal. Call `show()` again to capture the latest `data` and `props`.
+
+Required, optional, and absent fields produce matching function signatures:
 
 ```ts
 type NoInputs = {};
@@ -138,39 +198,32 @@ type OptionalData = { data?: { id?: string } };
 type RequiredProps = { props: { onSave: () => void } };
 // useModal(Component, { onSave }).show()
 
-type Combined = {
+type OptionalProps = { props?: { closeOnSuccess?: boolean } };
+// useModal(Component).show()
+// useModal(Component, { closeOnSuccess: true }).show()
+
+type DataAndProps = {
   data: { id: string };
   props: { onSave: (id: string) => void };
 };
 // useModal(Component, { onSave }).show({ id: "1" })
 ```
 
-`props` is intentionally a snapshot. Changing the object passed to `useModal` does not update an already open modal; call `show` again to capture the latest values.
-
-## Lifecycle
-
-| Action | Mounted | Visible | Local state |
-| --- | --- | --- | --- |
-| Before the first `show` | No | No | Not created |
-| `show(data?)` | Yes | Yes | Created or refreshed with the latest inputs |
-| `hide()` | Yes | No | Preserved |
-| `destroy()` | No | No | Discarded |
-
-If the component that owns `useModal` unmounts, its modal is destroyed automatically. Callbacks captured by an older `show` call cannot hide or destroy a newer modal generation.
-
 ## API
 
 ### `useModal(component, props?)`
 
-Returns a controller with three methods:
+Creates a stable controller for one modal component.
 
-- `show(data?)` mounts or re-shows the modal with the latest input snapshot.
-- `hide()` sets `visible` to `false` without unmounting the modal.
-- `destroy()` unmounts the modal and clears its captured inputs.
+- `show(data?)` lazily mounts the modal or shows it again with a new input snapshot.
+- `hide()` sets `visible` to `false` without unmounting.
+- `destroy()` unmounts the modal and removes its captured inputs.
+
+`useModal` must be called below a `ModalProvider`.
 
 ### `ModalProps<Definition>`
 
-Props received by the managed modal component. It includes every field declared by `Definition` plus:
+The props received by a managed modal. It combines the `data` and `props` fields declared in `Definition` with these controls:
 
 ```ts
 interface ModalControls {
@@ -182,11 +235,15 @@ interface ModalControls {
 
 ### `ModalProvider`
 
-The render host for managed modals. Mount it once near the root of the React tree whose context the modals need to consume.
+Hosts managed modals and keeps modal updates out of their hook owners. Mount it once near the root of the context boundary your modals need to access.
+
+### Type exports
+
+The package also exports `ModalComponent`, `ModalControls`, `ModalDefinition`, `ModalFieldArguments`, `ModalProviderProps`, and `ModalResult` for wrappers and library integrations.
 
 ## Migrating from v2
 
-Version 3 replaces positional `ModalType<Data, Props>` parameters with a named definition object:
+Version 3 replaces the positional `ModalType<Data, Props>` API with a named definition object:
 
 ```ts
 // v2
@@ -201,13 +258,15 @@ interface EditModalDefinition {
 type EditModalComponentProps = ModalProps<EditModalDefinition>;
 ```
 
-Also note:
+Other changes in v3:
 
-- Required definition fields now produce required function arguments.
+- Required definition fields now require matching arguments.
 - Use `data?: Data` when `show()` without data should be valid.
-- Use `props?: Props` when `useModal(component)` without props should be valid.
-- `useModalContext` and `ModalType` are no longer public APIs.
-- Hook-owned modals are destroyed when their owner unmounts.
+- Use `props?: Props` when `useModal(Component)` without props should be valid.
+- `ModalType` and `useModalContext` are no longer public APIs.
+- A hook-owned modal is destroyed when its owner unmounts.
+
+See the [changelog](../CHANGELOG.md) for the complete release history.
 
 ## Development
 
