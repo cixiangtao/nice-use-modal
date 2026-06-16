@@ -1,4 +1,12 @@
 
+
+## [3.0.1](https://github.com/cixiangtao/nice-use-modal/compare/v3.0.0...v3.0.1) (2026-07-14)
+
+
+### Features
+
+* **demo:** rebuild interactive landing page ([025a5bc](https://github.com/cixiangtao/nice-use-modal/commit/025a5bcfbb64356fd24ec6583296aa2b9855d8e0))
+
 # 3.0.0 (2026-07-13)
 
 ### Breaking Changes
