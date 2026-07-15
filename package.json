@@ -80,12 +80,5 @@
       "path": "./node_modules/cz-git"
     }
   },
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "11.12.0",
-      "onFail": "download"
-    }
-  },
   "packageManager": "pnpm@11.12.0"
 }
