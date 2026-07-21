@@ -6,6 +6,8 @@ import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins } from "vite-plus";
 
 export default defineConfig({
+  // Relative asset URLs keep the demo portable when GitHub Pages serves it from a project path.
+  base: "./",
   build: {
     // Keep the demo output separate from the package artifacts in dist.
     outDir: "demo-dist",

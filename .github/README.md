@@ -6,7 +6,7 @@
 
 A small, headless modal controller for React. Open a modal from a hook, pass it fully typed inputs, and decide whether closing should preserve or discard its local state.
 
-[Live demo](https://nice-use-modal.cixiangtao.chatgpt.site) · [npm](https://www.npmjs.com/package/nice-use-modal) · [Changelog](../CHANGELOG.md)
+[Live demo](https://cixiangtao.github.io/nice-use-modal/) · [npm](https://www.npmjs.com/package/nice-use-modal) · [Changelog](../CHANGELOG.md)
 
 ```tsx
 const confirmModal = useModal(ConfirmModal, {
