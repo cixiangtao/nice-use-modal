@@ -1,8 +1,15 @@
 {
+  "hooks": {
+    "before:init": "pnpm release:check"
+  },
   "git": {
     "tagName": "v${version}",
-    "commitMessage": "release: 🍀v${version}",
-    "requireCleanWorkingDir": false
+    "commitMessage": "chore(release): v${version}",
+    "requireBranch": "master",
+    "requireCleanWorkingDir": true
+  },
+  "npm": {
+    "publish": true
   },
   "github": {
     "release": false
