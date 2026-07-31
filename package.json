@@ -70,7 +70,7 @@
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^6.0.5",
-    "antd": "^5.29.3",
+    "antd": "^6.5.2",
     "happy-dom": "^20.11.1",
     "husky": "^9.1.7",
     "react": "^18.3.1",
