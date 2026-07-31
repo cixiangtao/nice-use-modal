@@ -77,7 +77,7 @@
     "react-dom": "^18.3.1",
     "release-it": "^21.0.0",
     "rollup": "^4.62.3",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   },
