@@ -48,6 +48,22 @@ function assert(condition, message) {
   }
 }
 
+function hasMarkdownLink(content, expectedUrl) {
+  const markdownLinkPattern = /\[[^\]]+\]\((https?:\/\/[^)\s]+)\)/gu;
+
+  for (const match of content.matchAll(markdownLinkPattern)) {
+    try {
+      if (new URL(match[1]).href === expectedUrl.href) {
+        return true;
+      }
+    } catch {
+      // Ignore malformed Markdown link targets and continue checking exact URLs.
+    }
+  }
+
+  return false;
+}
+
 const requiredFiles = [
   "LICENSE",
   "README.md",
@@ -149,8 +165,9 @@ try {
       packageManifest.peerDependencies?.react === "^18.0.0 || ^19.0.0",
       "Published React peer dependency is incorrect",
     );
+    const documentationUrl = new URL("https://github.com/cixiangtao/nice-use-modal");
     assert(
-      packageReadme.includes("https://github.com/cixiangtao/nice-use-modal"),
+      hasMarkdownLink(packageReadme, documentationUrl),
       "Published README does not link to the full GitHub documentation",
     );
     assert(packageLicense.startsWith("MIT License"), "Published LICENSE is not the MIT license");
