@@ -1,0 +1,60 @@
+name: Bug report
+description: Report reproducible incorrect behavior in nice-use-modal
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve nice-use-modal. Do not include secrets or private data.
+
+  - type: input
+    id: package-version
+    attributes:
+      label: nice-use-modal version
+      placeholder: 3.0.1
+    validations:
+      required: true
+
+  - type: input
+    id: react-version
+    attributes:
+      label: React version
+      placeholder: 18.3.1 or 19.x
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and operating system
+      placeholder: Chrome 140 on macOS 15
+    validations:
+      required: true
+
+  - type: input
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Link to a small repository, StackBlitz, or CodeSandbox.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the smallest useful error or stack trace.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context

@@ -2,11 +2,12 @@
 
 [![npm version](https://badgen.net/npm/v/nice-use-modal)](https://www.npmjs.com/package/nice-use-modal)
 [![npm downloads](https://badgen.net/npm/dt/nice-use-modal?label=downloads)](https://www.npmjs.com/package/nice-use-modal)
-![license](https://badgen.net/npm/license/nice-use-modal)
+[![CI](https://github.com/cixiangtao/nice-use-modal/actions/workflows/ci.yml/badge.svg)](https://github.com/cixiangtao/nice-use-modal/actions/workflows/ci.yml)
+[![license](https://badgen.net/npm/license/nice-use-modal)](../LICENSE)
 
 A small, headless modal controller for React. Open a modal from a hook, pass it fully typed inputs, and decide whether closing should preserve or discard its local state.
 
-[Live demo](https://cixiangtao.github.io/nice-use-modal/) · [npm](https://www.npmjs.com/package/nice-use-modal) · [Changelog](../CHANGELOG.md)
+[Live demo](https://cixiangtao.github.io/nice-use-modal/) · [npm](https://www.npmjs.com/package/nice-use-modal) · [Changelog](../CHANGELOG.md) · [Contributing](../CONTRIBUTING.md)
 
 ```tsx
 const confirmModal = useModal(ConfirmModal, {
@@ -270,13 +271,20 @@ See the [changelog](../CHANGELOG.md) for the complete release history.
 
 ## Development
 
-```bash
-pnpm install
-pnpm test
-pnpm check
-pnpm build
-```
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for the Node and pnpm requirements,
+local setup, quality gate, commit convention, and pull request expectations.
+Maintainers can find the versioning and npm publication contract in
+[RELEASING.md](../RELEASING.md).
+
+## Support and security
+
+Use [GitHub Issues](https://github.com/cixiangtao/nice-use-modal/issues) for
+reproducible library bugs and focused feature requests. Read
+[SUPPORT.md](../SUPPORT.md) before opening an issue.
+
+Report suspected vulnerabilities privately according to
+[SECURITY.md](../SECURITY.md).
 
 ## License
 
-MIT
+[MIT](../LICENSE)
