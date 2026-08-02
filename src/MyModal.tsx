@@ -11,6 +11,7 @@ interface DemoModalData {
 }
 
 interface DemoModalOwnerProps {
+  onDraftChange: (name: string) => void;
   onLifecycleChange: (status: "destroyed" | "hidden") => void;
   onSubmit: (name: string) => void;
 }
@@ -36,27 +37,60 @@ export default function DemoModal({
   visible,
 }: ModalProps<DemoModalDefinition>) {
   const [name, setName] = useState(data.initialName);
+  const dialogRef = useRef<HTMLFormElement>(null);
   const titleId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
+  const layerRef = useRef<HTMLDivElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+  const { onDraftChange, onLifecycleChange } = props;
 
   useEffect(() => {
     setName(data.initialName);
-  }, [data.id, data.initialName]);
+    onDraftChange(data.initialName);
+  }, [data.id, data.initialName, onDraftChange]);
+
+  useEffect(() => {
+    layerRef.current?.toggleAttribute("inert", !visible);
+  }, [visible]);
 
   useEffect(() => {
     if (!visible) return;
 
+    previouslyFocusedRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     inputRef.current?.focus();
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         hide();
-        props.onLifecycleChange("hidden");
+        onLifecycleChange("hidden");
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusableElements = dialogRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusableElements?.length) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [hide, props, visible]);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      if (previouslyFocusedRef.current?.isConnected) previouslyFocusedRef.current.focus();
+    };
+  }, [hide, onLifecycleChange, visible]);
 
   const closeAndPreserve = () => {
     hide();
@@ -92,12 +126,14 @@ export default function DemoModal({
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) closeAndPreserve();
       }}
+      ref={layerRef}
     >
       <form
         aria-labelledby={titleId}
         aria-modal="true"
         className="demo-modal"
         onSubmit={submit}
+        ref={dialogRef}
         role="dialog"
       >
         <div className="modal-topline">
@@ -120,7 +156,10 @@ export default function DemoModal({
           <input
             autoComplete="off"
             id={`${titleId}-name`}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => {
+              setName(event.target.value);
+              props.onDraftChange(event.target.value);
+            }}
             placeholder="e.g. Midnight release"
             ref={inputRef}
             value={name}

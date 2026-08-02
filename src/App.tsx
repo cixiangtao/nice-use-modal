@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { useModal } from "../packages/useModal";
 import DemoModal from "./MyModal";
@@ -34,7 +34,16 @@ projectModal.show({
   initialName: "Atlas launch",
 });`;
 
+type CopyTarget = "code" | "install";
+type ModalExample = (typeof MODAL_EXAMPLES)[keyof typeof MODAL_EXAMPLES];
 type ModalStatus = "destroyed" | "hidden" | "visible";
+
+interface LifecycleEvent {
+  action: string;
+  detail: string;
+  id: number;
+  status: ModalStatus | "ready";
+}
 
 function ArrowIcon() {
   return (
@@ -44,10 +53,18 @@ function ArrowIcon() {
   );
 }
 
+function CheckIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20">
+      <path d="m4 10 4 4 8-8" />
+    </svg>
+  );
+}
+
 function CopyIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20">
-      <rect height="10" rx="2" width="10" x="7" y="7" />
+      <rect height="10" rx="1.5" width="10" x="7" y="7" />
       <path d="M4 13H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" />
     </svg>
   );
@@ -61,53 +78,99 @@ function GithubIcon() {
   );
 }
 
+function StatusDot({ tone }: { tone: "amber" | "blue" | "muted" }) {
+  return <i aria-hidden="true" className={`status-dot is-${tone}`} />;
+}
+
 export default function App() {
-  const [copied, setCopied] = useState(false);
+  const [activeExample, setActiveExample] = useState<ModalExample>(MODAL_EXAMPLES.edit);
+  const [copiedTarget, setCopiedTarget] = useState<CopyTarget | null>(null);
+  const [draftName, setDraftName] = useState("");
   const [modalStatus, setModalStatus] = useState<ModalStatus>("destroyed");
-  const [events, setEvents] = useState(["Provider ready — waiting for show()"]);
+  const [events, setEvents] = useState<LifecycleEvent[]>([
+    {
+      action: "provider",
+      detail: "Ready for show()",
+      id: 0,
+      status: "ready",
+    },
+  ]);
+  const eventSequence = useRef(0);
 
-  const recordEvent = useCallback((event: string) => {
-    setEvents((current) => [event, ...current].slice(0, 3));
-  }, []);
-
-  const modal = useModal(DemoModal, {
-    onLifecycleChange: (nextStatus) => {
-      setModalStatus(nextStatus);
-      recordEvent(
-        nextStatus === "hidden"
-          ? "hide() → draft state preserved"
-          : "destroy() → component unmounted",
+  const recordEvent = useCallback(
+    (action: string, detail: string, status: LifecycleEvent["status"]) => {
+      eventSequence.current += 1;
+      setEvents((current) =>
+        [{ action, detail, id: eventSequence.current, status }, ...current].slice(0, 5),
       );
     },
-    onSubmit: (name) => {
-      setModalStatus("hidden");
-      recordEvent(`Saved “${name}” → modal hidden`);
+    [],
+  );
+
+  const handleLifecycleChange = useCallback(
+    (nextStatus: "destroyed" | "hidden") => {
+      setModalStatus(nextStatus);
+      if (nextStatus === "destroyed") setDraftName("");
+      recordEvent(
+        nextStatus === "hidden" ? "hide()" : "destroy()",
+        nextStatus === "hidden" ? "Draft state preserved" : "Component unmounted",
+        nextStatus,
+      );
     },
+    [recordEvent],
+  );
+
+  const handleSubmit = useCallback(
+    (name: string) => {
+      setDraftName(name);
+      setModalStatus("hidden");
+      recordEvent("submit", `Saved “${name}”; modal hidden`, "hidden");
+    },
+    [recordEvent],
+  );
+
+  const modal = useModal(DemoModal, {
+    onDraftChange: setDraftName,
+    onLifecycleChange: handleLifecycleChange,
+    onSubmit: handleSubmit,
   });
 
-  const showExample = (example: (typeof MODAL_EXAMPLES)[keyof typeof MODAL_EXAMPLES]) => {
+  const showExample = (example: ModalExample) => {
+    const keepsExistingDraft = modalStatus === "hidden" && activeExample.id === example.id;
+
+    setActiveExample(example);
+    if (!keepsExistingDraft) setDraftName(example.initialName);
     modal.show(example);
     setModalStatus("visible");
-    recordEvent(`show() → mounted with “${example.title}”`);
+    recordEvent(
+      "show()",
+      keepsExistingDraft ? "Mounted draft shown again" : `Runtime data: ${example.id}`,
+      "visible",
+    );
   };
 
   const hideModal = () => {
     modal.hide();
     setModalStatus("hidden");
-    recordEvent("hide() → draft state preserved");
+    recordEvent("hide()", "Draft state preserved", "hidden");
   };
 
   const destroyModal = () => {
     modal.destroy();
+    setDraftName("");
     setModalStatus("destroyed");
-    recordEvent("destroy() → component unmounted");
+    recordEvent("destroy()", "Component unmounted", "destroyed");
   };
 
-  const copyInstallCommand = async () => {
-    await navigator.clipboard.writeText(INSTALL_COMMAND);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
+  const copyText = async (value: string, target: CopyTarget) => {
+    await navigator.clipboard.writeText(value);
+    setCopiedTarget(target);
+    window.setTimeout(() => setCopiedTarget(null), 1800);
   };
+
+  const isMounted = modalStatus !== "destroyed";
+  const isVisible = modalStatus === "visible";
+  const draftValue = isMounted ? draftName || "Empty draft" : "Released";
 
   return (
     <div className="site-shell">
@@ -140,230 +203,246 @@ export default function App() {
       </header>
 
       <main id="top">
-        <section className="hero-section">
+        <section className="hero-workbench" id="playground">
           <div className="hero-copy">
-            <div className="release-pill">
-              <span />
-              v3.0 · React 18 &amp; 19
-            </div>
             <h1>
-              Modals,
+              Open it. Hide it.
               <br />
-              <em>without the mess.</em>
+              <span>Bring the draft back.</span>
             </h1>
             <p className="hero-lede">
-              A tiny, type-safe controller for opening React modals imperatively—while keeping
-              context, lifecycle, and state exactly where they belong.
+              See exactly what happens on <code>show()</code>, <code>hide()</code>, and{" "}
+              <code>destroy()</code>. Keep drafts safe, control visibility, and clean up with
+              confidence.
             </p>
 
-            <div className="install-row">
-              <code>
-                <span>$</span> {INSTALL_COMMAND}
-              </code>
-              <button onClick={copyInstallCommand} type="button">
-                <CopyIcon />
-                <span aria-live="polite">{copied ? "Copied" : "Copy"}</span>
+            <div className="install-control">
+              <code>{INSTALL_COMMAND}</code>
+              <button
+                aria-label="Copy install command"
+                onClick={() => copyText(INSTALL_COMMAND, "install")}
+                type="button"
+              >
+                {copiedTarget === "install" ? <CheckIcon /> : <CopyIcon />}
+                <span aria-live="polite">{copiedTarget === "install" ? "Copied" : "Copy"}</span>
               </button>
             </div>
 
-            <div className="hero-notes" aria-label="Package benefits">
-              <span>1.1 kB min+gzip</span>
-              <span>Zero UI opinions</span>
-              <span>Full type inference</span>
+            <div className="hero-actions">
+              <button
+                className="primary-action"
+                onClick={() => showExample(MODAL_EXAMPLES.edit)}
+                type="button"
+              >
+                Run show() <ArrowIcon />
+              </button>
+              <a
+                className="secondary-action"
+                href="https://github.com/cixiangtao/nice-use-modal"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <GithubIcon /> GitHub
+              </a>
             </div>
           </div>
 
-          <div className="hero-visual" aria-hidden="true">
-            <div className="orbit orbit-one" />
-            <div className="orbit orbit-two" />
-            <div className="floating-code code-show">
-              <span>01</span>
-              <code>modal.show(data)</code>
-            </div>
-            <div className="floating-code code-hide">
-              <span>02</span>
-              <code>modal.hide()</code>
-            </div>
-            <div className="floating-code code-destroy">
-              <span>03</span>
-              <code>modal.destroy()</code>
-            </div>
-            <div className="hero-modal-card">
-              <div className="mini-window-bar">
-                <i />
-                <i />
-                <i />
+          <div className="inspector-shell">
+            <div className="instrument-toolbar">
+              <div>
+                <span className="instrument-mark" aria-hidden="true" />
+                Live modal specimen
               </div>
-              <div className="mini-modal-body">
-                <span className="mini-eyebrow">PROJECT SETTINGS</span>
-                <strong>Ship the thing?</strong>
-                <div className="mini-input">Atlas launch</div>
-                <div className="mini-actions">
-                  <span>Cancel</span>
-                  <span>Ship it →</span>
+              <span className={`live-status is-${modalStatus}`}>
+                <StatusDot tone={isVisible ? "blue" : isMounted ? "amber" : "muted"} />
+                {modalStatus}
+              </span>
+            </div>
+
+            <div className="inspector-grid">
+              <div className="specimen-stage">
+                <div className="stage-ruler" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
                 </div>
+                <div className={`specimen-card is-${modalStatus}`}>
+                  <div className="specimen-topline">
+                    <span>{activeExample.eyebrow}</span>
+                    <span aria-hidden="true">×</span>
+                  </div>
+                  <h2>{activeExample.title}</h2>
+                  <p>{activeExample.description}</p>
+                  <label>
+                    Project name
+                    <input
+                      aria-label="Preview project name"
+                      readOnly
+                      value={isMounted ? draftName : activeExample.initialName}
+                    />
+                  </label>
+                  <div className="specimen-actions">
+                    <span>Close</span>
+                    <button onClick={() => showExample(activeExample)} type="button">
+                      Open live modal
+                    </button>
+                  </div>
+                </div>
+                {modalStatus === "destroyed" && (
+                  <p className="preview-note">Preview · component is not mounted yet</p>
+                )}
               </div>
+
+              <aside className="telemetry-panel" aria-label="Live modal telemetry">
+                <div className="telemetry-heading">
+                  <span>Runtime telemetry</span>
+                  <span aria-hidden="true">LIVE</span>
+                </div>
+                <dl>
+                  <div>
+                    <dt>
+                      <StatusDot tone={isMounted ? "blue" : "muted"} /> mounted
+                    </dt>
+                    <dd>{String(isMounted)}</dd>
+                  </div>
+                  <div>
+                    <dt>
+                      <StatusDot tone={isVisible ? "blue" : "muted"} /> visible
+                    </dt>
+                    <dd>{String(isVisible)}</dd>
+                  </div>
+                  <div>
+                    <dt>
+                      <StatusDot tone={modalStatus === "hidden" ? "amber" : "muted"} /> draft
+                    </dt>
+                    <dd className={modalStatus === "hidden" ? "is-preserved" : ""}>{draftValue}</dd>
+                  </div>
+                  <div>
+                    <dt>runtime data</dt>
+                    <dd>{isMounted ? activeExample.id : "—"}</dd>
+                  </div>
+                </dl>
+                <p className="telemetry-note">
+                  {modalStatus === "destroyed" && "show() will mount the component on demand."}
+                  {modalStatus === "visible" && "The component is mounted and visible."}
+                  {modalStatus === "hidden" && "The component remains mounted with its draft."}
+                </p>
+              </aside>
+            </div>
+
+            <div className="controller-strip" aria-label="Modal lifecycle controls">
+              <span>Controller</span>
+              <button onClick={() => showExample(activeExample)} type="button">
+                show()
+              </button>
+              <button disabled={!isVisible} onClick={hideModal} type="button">
+                hide()
+              </button>
+              <button disabled={!isMounted} onClick={destroyModal} type="button">
+                destroy()
+              </button>
             </div>
           </div>
         </section>
 
-        <section className="playground-section" id="playground">
-          <div className="section-heading">
-            <div>
-              <span className="kicker">01 / TRY IT</span>
-              <h2>One hook. Three deliberate actions.</h2>
+        <section className="proof-workbench" aria-label="Lifecycle proof">
+          <div className="event-trace">
+            <div className="workbench-heading">
+              <div>
+                <h2>Lifecycle event trace</h2>
+                <p>Every row comes from the controller you just used.</p>
+              </div>
+              <span>
+                {events.length} event{events.length === 1 ? "" : "s"}
+              </span>
             </div>
-            <p>
-              No mirrored <code>visible</code> state. No ref plumbing. The component only exists
-              after you ask for it.
-            </p>
+            <div className="trace-table" aria-live="polite">
+              <div className="trace-row trace-header" aria-hidden="true">
+                <span>#</span>
+                <span>Event</span>
+                <span>Detail</span>
+                <span>State</span>
+              </div>
+              {events.map((event) => (
+                <div className="trace-row" key={event.id}>
+                  <span>{String(event.id).padStart(2, "0")}</span>
+                  <code>{event.action}</code>
+                  <span>{event.detail}</span>
+                  <span className={`trace-state is-${event.status}`}>{event.status}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="playground-grid">
-            <div className="demo-panel">
-              <div className="panel-toolbar">
-                <div className="window-dots" aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                </div>
-                <span>modal-playground.tsx</span>
-                <span className={`status-badge is-${modalStatus}`}>
-                  <i /> {modalStatus}
-                </span>
+          <div className="code-proof">
+            <div className="workbench-heading">
+              <div>
+                <h2>The whole owner API</h2>
+                <p>Runtime data enters only when the modal opens.</p>
               </div>
-
-              <div className="demo-content">
-                <div className="demo-intro">
-                  <span>INTERACTIVE DEMO</span>
-                  <h3>Open it. Type something. Hide it. Open it again.</h3>
-                  <p>
-                    Your draft stays after <code>hide()</code>. Use <code>destroy()</code> and it
-                    starts fresh.
-                  </p>
-                </div>
-
-                <div className="demo-actions">
-                  <button
-                    className="primary-action"
-                    onClick={() => showExample(MODAL_EXAMPLES.create)}
-                    type="button"
-                  >
-                    Create project <ArrowIcon />
-                  </button>
-                  <button
-                    className="secondary-action"
-                    onClick={() => showExample(MODAL_EXAMPLES.edit)}
-                    type="button"
-                  >
-                    Edit “Atlas launch”
-                  </button>
-                </div>
-
-                <div className="controller-row">
-                  <span>CONTROLLER</span>
-                  <button disabled={modalStatus !== "visible"} onClick={hideModal} type="button">
-                    hide()
-                  </button>
-                  <button
-                    disabled={modalStatus === "destroyed"}
-                    onClick={destroyModal}
-                    type="button"
-                  >
-                    destroy()
-                  </button>
-                </div>
-              </div>
+              <button onClick={() => copyText(CODE_SAMPLE, "code")} type="button">
+                {copiedTarget === "code" ? <CheckIcon /> : <CopyIcon />}
+                <span aria-live="polite">{copiedTarget === "code" ? "Copied" : "Copy"}</span>
+              </button>
             </div>
-
-            <aside className="event-panel">
-              <div className="event-panel-heading">
-                <span>LIVE LIFECYCLE</span>
-                <i className={modalStatus === "visible" ? "is-live" : ""} />
-              </div>
-              <div className="event-log" aria-live="polite">
-                {events.map((event, index) => (
-                  <div
-                    className={index === 0 ? "event-item is-current" : "event-item"}
-                    key={`${event}-${index}`}
-                  >
-                    <span>{String(index + 1).padStart(2, "0")}</span>
-                    <p>{event}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="state-map">
-                <div className={modalStatus === "destroyed" ? "is-active" : ""}>
-                  <span /> unmounted
-                </div>
-                <i>→</i>
-                <div className={modalStatus === "visible" ? "is-active" : ""}>
-                  <span /> visible
-                </div>
-                <i>→</i>
-                <div className={modalStatus === "hidden" ? "is-active" : ""}>
-                  <span /> hidden
-                </div>
-              </div>
-            </aside>
+            <pre aria-label="nice-use-modal usage example">
+              <code>{CODE_SAMPLE}</code>
+            </pre>
           </div>
         </section>
 
         <section className="lifecycle-section" id="lifecycle">
-          <div className="section-heading compact">
-            <div>
-              <span className="kicker">02 / THE CONTRACT</span>
-              <h2>Lifecycle you can reason about.</h2>
-            </div>
+          <div className="lifecycle-intro">
+            <h2>Three actions. No mirrored visibility state.</h2>
+            <p>
+              The controller says exactly what happens next, so ownership stays obvious in the
+              component tree.
+            </p>
           </div>
 
-          <div className="lifecycle-grid">
+          <div className="lifecycle-flow">
             <article>
-              <span className="step-number">01</span>
+              <span>1</span>
               <code>show(data?)</code>
-              <h3>Mount on demand</h3>
-              <p>The modal is created lazily with a fresh, fully typed data snapshot.</p>
+              <h3>Mount and reveal</h3>
+              <p>Create the modal lazily with a fresh, fully typed data snapshot.</p>
             </article>
             <article>
-              <span className="step-number">02</span>
+              <span>2</span>
               <code>hide()</code>
               <h3>Close, keep state</h3>
               <p>Make it invisible while preserving form values and local component state.</p>
             </article>
             <article>
-              <span className="step-number">03</span>
+              <span>3</span>
               <code>destroy()</code>
               <h3>Unmount, reset</h3>
-              <p>Remove the component completely and discard every captured input.</p>
-            </article>
-            <article className="provider-card">
-              <span className="step-number">+</span>
-              <code>&lt;ModalProvider&gt;</code>
-              <h3>Context stays intact</h3>
-              <p>Theme, locale, router, and your application context remain available.</p>
+              <p>Remove the component completely and release every captured input.</p>
             </article>
           </div>
         </section>
 
-        <section className="code-section">
-          <div className="code-copy">
-            <span className="kicker">03 / THAT’S REALLY IT</span>
-            <h2>Typed at the edges. Quiet everywhere else.</h2>
-            <p>
-              Define runtime <code>data</code> on the modal and owner <code>props</code> on the
-              hook. TypeScript derives the rest.
-            </p>
+        <section className="closing-section">
+          <div>
+            <h2>Put the lifecycle in one hook.</h2>
+            <p>Install the package, wrap your app once, and keep modal state where it belongs.</p>
+          </div>
+          <div className="closing-actions">
+            <button
+              className="light-action"
+              onClick={() => copyText(INSTALL_COMMAND, "install")}
+              type="button"
+            >
+              {copiedTarget === "install" ? "Copied" : INSTALL_COMMAND}
+              <CopyIcon />
+            </button>
             <a href="https://github.com/cixiangtao/nice-use-modal" rel="noreferrer" target="_blank">
-              Read the documentation <ArrowIcon />
+              View on GitHub <ArrowIcon />
             </a>
           </div>
-          <pre aria-label="nice-use-modal usage example">
-            <div className="code-window-bar">
-              <span>App.tsx</span>
-              <span>TSX</span>
-            </div>
-            <code>{CODE_SAMPLE}</code>
-          </pre>
         </section>
       </main>
 
@@ -374,8 +453,8 @@ export default function App() {
           </span>
           <span>nice-use-modal</span>
         </div>
-        <p>Small API. Predictable modals. MIT licensed.</p>
-        <span>Made for React.</span>
+        <p>Type-safe, headless modal control for React.</p>
+        <span>MIT licensed</span>
       </footer>
     </div>
   );
