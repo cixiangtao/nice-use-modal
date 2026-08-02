@@ -1,0 +1,368 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-02T13:20:52Z",
+  "title": "Design System: nice-use-modal",
+  "extensions": {
+    "colorMeta": {
+      "cobalt": {
+        "role": "primary",
+        "displayName": "Precision Cobalt",
+        "canonical": "#0a4bdf",
+        "tonalRamp": [
+          "oklch(15% 0.232 263.1)",
+          "oklch(26% 0.232 263.1)",
+          "oklch(37% 0.232 263.1)",
+          "oklch(48% 0.232 263.1)",
+          "oklch(59% 0.232 263.1)",
+          "oklch(70% 0.232 263.1)",
+          "oklch(82% 0.232 263.1)",
+          "oklch(94% 0.232 263.1)"
+        ]
+      },
+      "cobalt-deep": {
+        "role": "primary",
+        "displayName": "Deep Control Cobalt",
+        "canonical": "#0738a5",
+        "tonalRamp": [
+          "oklch(15% 0.182 262.9)",
+          "oklch(26% 0.182 262.9)",
+          "oklch(37% 0.182 262.9)",
+          "oklch(48% 0.182 262.9)",
+          "oklch(59% 0.182 262.9)",
+          "oklch(70% 0.182 262.9)",
+          "oklch(82% 0.182 262.9)",
+          "oklch(94% 0.182 262.9)"
+        ]
+      },
+      "cobalt-wash": {
+        "role": "primary",
+        "displayName": "Cobalt Wash",
+        "canonical": "#dce8ff",
+        "tonalRamp": [
+          "oklch(15% 0.034 263.6)",
+          "oklch(26% 0.034 263.6)",
+          "oklch(37% 0.034 263.6)",
+          "oklch(48% 0.034 263.6)",
+          "oklch(59% 0.034 263.6)",
+          "oklch(70% 0.034 263.6)",
+          "oklch(82% 0.034 263.6)",
+          "oklch(94% 0.034 263.6)"
+        ]
+      },
+      "preservation-amber": {
+        "role": "secondary",
+        "displayName": "Preservation Amber",
+        "canonical": "#b65f00",
+        "tonalRamp": [
+          "oklch(15% 0.141 56.3)",
+          "oklch(26% 0.141 56.3)",
+          "oklch(37% 0.141 56.3)",
+          "oklch(48% 0.141 56.3)",
+          "oklch(59% 0.141 56.3)",
+          "oklch(70% 0.141 56.3)",
+          "oklch(82% 0.141 56.3)",
+          "oklch(94% 0.141 56.3)"
+        ]
+      },
+      "preservation-wash": {
+        "role": "secondary",
+        "displayName": "Preservation Wash",
+        "canonical": "#fff0d5",
+        "tonalRamp": [
+          "oklch(15% 0.039 82.3)",
+          "oklch(26% 0.039 82.3)",
+          "oklch(37% 0.039 82.3)",
+          "oklch(48% 0.039 82.3)",
+          "oklch(59% 0.039 82.3)",
+          "oklch(70% 0.039 82.3)",
+          "oklch(82% 0.039 82.3)",
+          "oklch(94% 0.039 82.3)"
+        ]
+      },
+      "navy-ink": {
+        "role": "neutral",
+        "displayName": "Navy Ink",
+        "canonical": "#0b1b31",
+        "tonalRamp": [
+          "oklch(15% 0.048 256.8)",
+          "oklch(26% 0.048 256.8)",
+          "oklch(37% 0.048 256.8)",
+          "oklch(48% 0.048 256.8)",
+          "oklch(59% 0.048 256.8)",
+          "oklch(70% 0.048 256.8)",
+          "oklch(82% 0.048 256.8)",
+          "oklch(94% 0.048 256.8)"
+        ]
+      },
+      "muted-telemetry": {
+        "role": "neutral",
+        "displayName": "Muted Telemetry",
+        "canonical": "#53657b",
+        "tonalRamp": [
+          "oklch(15% 0.042 253.7)",
+          "oklch(26% 0.042 253.7)",
+          "oklch(37% 0.042 253.7)",
+          "oklch(48% 0.042 253.7)",
+          "oklch(59% 0.042 253.7)",
+          "oklch(70% 0.042 253.7)",
+          "oklch(82% 0.042 253.7)",
+          "oklch(94% 0.042 253.7)"
+        ]
+      },
+      "measurement-line": {
+        "role": "neutral",
+        "displayName": "Measurement Rule",
+        "canonical": "#bdc8d6",
+        "tonalRamp": [
+          "oklch(15% 0.023 254.4)",
+          "oklch(26% 0.023 254.4)",
+          "oklch(37% 0.023 254.4)",
+          "oklch(48% 0.023 254.4)",
+          "oklch(59% 0.023 254.4)",
+          "oklch(70% 0.023 254.4)",
+          "oklch(82% 0.023 254.4)",
+          "oklch(94% 0.023 254.4)"
+        ]
+      },
+      "measurement-line-strong": {
+        "role": "neutral",
+        "displayName": "Strong Gauge",
+        "canonical": "#8fa0b5",
+        "tonalRamp": [
+          "oklch(15% 0.036 253.8)",
+          "oklch(26% 0.036 253.8)",
+          "oklch(37% 0.036 253.8)",
+          "oklch(48% 0.036 253.8)",
+          "oklch(59% 0.036 253.8)",
+          "oklch(70% 0.036 253.8)",
+          "oklch(82% 0.036 253.8)",
+          "oklch(94% 0.036 253.8)"
+        ]
+      },
+      "instrument-paper": {
+        "role": "neutral",
+        "displayName": "Instrument Paper",
+        "canonical": "#edf1f4",
+        "tonalRamp": [
+          "oklch(15% 0.006 239.8)",
+          "oklch(26% 0.006 239.8)",
+          "oklch(37% 0.006 239.8)",
+          "oklch(48% 0.006 239.8)",
+          "oklch(59% 0.006 239.8)",
+          "oklch(70% 0.006 239.8)",
+          "oklch(82% 0.006 239.8)",
+          "oklch(94% 0.006 239.8)"
+        ]
+      },
+      "cool-workbench": {
+        "role": "neutral",
+        "displayName": "Cool Workbench",
+        "canonical": "#e5ebf1",
+        "tonalRamp": [
+          "oklch(15% 0.010 247.9)",
+          "oklch(26% 0.010 247.9)",
+          "oklch(37% 0.010 247.9)",
+          "oklch(48% 0.010 247.9)",
+          "oklch(59% 0.010 247.9)",
+          "oklch(70% 0.010 247.9)",
+          "oklch(82% 0.010 247.9)",
+          "oklch(94% 0.010 247.9)"
+        ]
+      },
+      "optic-white": {
+        "role": "neutral",
+        "displayName": "Optic White",
+        "canonical": "#fbfdff",
+        "tonalRamp": [
+          "oklch(15% 0.003 247.9)",
+          "oklch(26% 0.003 247.9)",
+          "oklch(37% 0.003 247.9)",
+          "oklch(48% 0.003 247.9)",
+          "oklch(59% 0.003 247.9)",
+          "oklch(70% 0.003 247.9)",
+          "oklch(82% 0.003 247.9)",
+          "oklch(94% 0.003 247.9)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Two-line desktop hero offer; responsive reflow on mobile."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Major lifecycle and closing statements."
+      },
+      "title": { "displayName": "Title", "purpose": "Workbench and lifecycle-card headings." },
+      "body": { "displayName": "Body", "purpose": "Readable product explanation and guidance." },
+      "action": { "displayName": "Action", "purpose": "Primary and secondary actions." },
+      "telemetry": {
+        "displayName": "Telemetry",
+        "purpose": "Runtime state, API calls, rulers, and event traces."
+      }
+    },
+    "shadows": [
+      {
+        "name": "instrument-offset",
+        "value": "4px 4px 0 #dce8ff",
+        "purpose": "Graphic offset behind the cobalt instrument mark."
+      },
+      {
+        "name": "specimen-lift",
+        "value": "10px 14px 34px rgb(11 27 49 / 16%)",
+        "purpose": "Separates a staged modal specimen from the ruled workbench."
+      },
+      {
+        "name": "dialog-lift",
+        "value": "14px 20px 50px rgb(5 19 38 / 28%)",
+        "purpose": "Strongest elevation, reserved for the actual modal above its scrim."
+      },
+      {
+        "name": "status-blue-glow",
+        "value": "0 2px 6px rgb(10 75 223 / 28%)",
+        "purpose": "Confirms a visible or mounted live reading."
+      },
+      {
+        "name": "status-amber-glow",
+        "value": "0 2px 6px rgb(182 95 0 / 24%)",
+        "purpose": "Confirms hidden-but-preserved state."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-fast",
+        "value": "160ms ease",
+        "purpose": "Link, button, and compact hover state changes."
+      },
+      {
+        "name": "specimen-state",
+        "value": "200ms ease",
+        "purpose": "Preview opacity, filter, and transform changes."
+      },
+      { "name": "modal-fade", "value": "190ms ease", "purpose": "Modal scrim visibility." },
+      {
+        "name": "modal-enter",
+        "value": "250ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Dialog translation and scale on reveal."
+      },
+      {
+        "name": "inspector-boot",
+        "value": "720ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "One-time instrument clip, blur, and rise reveal."
+      }
+    ],
+    "breakpoints": [
+      { "name": "workbench-tight", "value": "1180px" },
+      { "name": "stack", "value": "960px" },
+      { "name": "mobile", "value": "700px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The decisive cobalt action used to run the live lifecycle proof.",
+      "html": "<button class=\"ds-btn-primary\">Run show() <svg aria-hidden=\"true\" viewBox=\"0 0 20 20\"><path d=\"M4 10h11M11 5l5 5-5 5\"/></svg></button>",
+      "css": ".ds-btn-primary{display:inline-flex;min-height:50px;align-items:center;justify-content:center;gap:24px;padding:0 20px;border:0;border-radius:12px;color:var(--white);background:var(--blue);font:700 14px/1 'Public Sans',sans-serif;cursor:pointer;transition:background 160ms ease,transform 160ms ease}.ds-btn-primary svg{width:18px;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.7}.ds-btn-primary:hover{background:var(--blue-dark);transform:translateY(-2px)}.ds-btn-primary:focus-visible{outline:3px solid #ffb13b;outline-offset:3px}.ds-btn-primary:active{transform:translateY(0)}"
+    },
+    {
+      "name": "Secondary Action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A quiet bordered action for documentation or reset paths.",
+      "html": "<button class=\"ds-btn-secondary\">Read the docs</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;min-height:50px;align-items:center;justify-content:center;padding:0 20px;border:1px solid var(--line-strong);border-radius:12px;color:var(--ink);background:transparent;font:700 14px/1 'Public Sans',sans-serif;cursor:pointer;transition:background 160ms ease,color 160ms ease}.ds-btn-secondary:hover{color:var(--blue-dark);background:var(--white)}.ds-btn-secondary:focus-visible{outline:3px solid #ffb13b;outline-offset:3px}.ds-btn-secondary:active{background:var(--blue-soft)}"
+    },
+    {
+      "name": "Install Control",
+      "kind": "custom",
+      "refersTo": "install-control",
+      "description": "A copyable package command presented as a measured two-cell instrument.",
+      "html": "<div class=\"ds-install\"><code>pnpm add nice-use-modal</code><button aria-label=\"Copy install command\"><svg aria-hidden=\"true\" viewBox=\"0 0 20 20\"><rect height=\"10\" rx=\"1.5\" width=\"10\" x=\"7\" y=\"7\"/><path d=\"M4 13H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1\"/></svg>Copy</button></div>",
+      "css": ".ds-install{display:grid;grid-template-columns:minmax(0,1fr) auto;width:min(100%,500px);overflow:hidden;border:1px solid var(--line-strong);border-radius:12px;color:var(--ink);background:var(--white)}.ds-install code{padding:17px 18px;overflow:hidden;font:400 12px/1.5 'Spline Sans Mono',monospace;text-overflow:ellipsis;white-space:nowrap}.ds-install button{display:inline-flex;align-items:center;gap:7px;padding:0 16px;border:0;border-left:1px solid var(--line);color:var(--blue-dark);background:transparent;font:700 12px/1 'Public Sans',sans-serif;cursor:pointer}.ds-install button:hover{background:var(--blue-soft)}.ds-install button:focus-visible{outline:3px solid #ffb13b;outline-offset:-4px}.ds-install button:active{background:#cbdcff}.ds-install svg{width:15px;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.6}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "text-field",
+      "description": "The modal draft field whose retained value proves lifecycle behavior.",
+      "html": "<label class=\"ds-field\">Project name<input value=\"Atlas launch\" aria-label=\"Project name\"></label>",
+      "css": ".ds-field{display:grid;gap:9px;color:var(--ink);font:700 12px/1.4 'Public Sans',sans-serif}.ds-field input{width:100%;min-height:50px;padding:0 14px;border:1px solid var(--line-strong);border-radius:9px;color:var(--ink);background:#f8fafc;font:400 14px/1 'Public Sans',sans-serif}.ds-field input:hover{border-color:#71849b}.ds-field input:focus{border-color:var(--blue)}.ds-field input:focus-visible{outline:3px solid #ffb13b;outline-offset:3px}"
+    },
+    {
+      "name": "Lifecycle Controller",
+      "kind": "custom",
+      "refersTo": "button-controller",
+      "description": "Adjacent show, hide, and destroy controls with the primary lifecycle entry emphasized.",
+      "html": "<div class=\"ds-controller\"><span>Controller</span><button class=\"ds-controller-primary\">show()</button><button>hide()</button><button>destroy()</button></div>",
+      "css": ".ds-controller{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);color:#40536a;background:var(--white);font:500 10px/1.5 'Spline Sans Mono',monospace;text-transform:uppercase}.ds-controller>span{margin-right:auto;color:var(--muted)}.ds-controller button{min-height:32px;padding:0 11px;border:1px solid var(--line-strong);border-radius:8px;color:var(--ink);background:var(--white);font:500 10px/1 'Spline Sans Mono',monospace;cursor:pointer}.ds-controller button:hover{border-color:var(--blue);color:var(--blue-dark);background:var(--blue-soft)}.ds-controller button:focus-visible{outline:3px solid #ffb13b;outline-offset:3px}.ds-controller .ds-controller-primary{border-color:var(--blue);color:var(--white);background:var(--blue)}.ds-controller .ds-controller-primary:hover,.ds-controller .ds-controller-primary:active{color:var(--white);background:var(--blue-dark)}"
+    },
+    {
+      "name": "Telemetry Reading",
+      "kind": "custom",
+      "description": "A ruled live-state reading with a semantic status light and monospace value.",
+      "html": "<dl class=\"ds-telemetry\"><div><dt><i></i> draft</dt><dd>Atlas launch</dd></div><p>The component remains mounted with its draft.</p></dl>",
+      "css": ".ds-telemetry{width:230px;margin:0;padding:20px;color:var(--ink);background:#f5f8fb;font-family:'Public Sans',sans-serif}.ds-telemetry div{padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.ds-telemetry dt{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11px}.ds-telemetry i{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 2px 6px rgb(182 95 0 / 24%)}.ds-telemetry dd{margin:8px 0 0;color:var(--amber);font:650 12px/1.5 'Spline Sans Mono',monospace;overflow-wrap:anywhere}.ds-telemetry p{margin:20px 0 0;color:#5a6c81;font-size:11px;line-height:1.55}"
+    },
+    {
+      "name": "Preservation Hint",
+      "kind": "card",
+      "refersTo": "preservation-hint",
+      "description": "An amber-wash note reserved for explaining mounted state retention.",
+      "html": "<div class=\"ds-hint\"><span>TIP</span><p>Close and reopen this modal—your draft will still be here.</p></div>",
+      "css": ".ds-hint{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:15px;border-radius:10px;color:#65400f;background:var(--amber-soft);font:400 12px/1.5 'Public Sans',sans-serif}.ds-hint span{color:var(--amber);font:700 9px/1.5 'Spline Sans Mono',monospace}.ds-hint p{margin:0}.ds-hint:hover{box-shadow:inset 0 0 0 1px rgb(182 95 0 / 18%)}.ds-hint:focus-within{outline:3px solid #ffb13b;outline-offset:3px}"
+    },
+    {
+      "name": "Modal Specimen",
+      "kind": "card",
+      "refersTo": "inspector-panel",
+      "description": "The lifted white specimen that visually anchors the lifecycle inspector.",
+      "html": "<article class=\"ds-specimen\"><div class=\"ds-specimen-top\"><span>Project settings</span><span>×</span></div><h2>Rename project</h2><p>Runtime data flows in when show() is called—without owner state.</p><div class=\"ds-specimen-faux-field\">Atlas launch</div><button>Open live modal</button></article>",
+      "css": ".ds-specimen{width:min(100%,470px);padding:32px;border-radius:14px;color:var(--ink);background:var(--white);box-shadow:10px 14px 34px rgb(11 27 49 / 16%);font-family:'Public Sans',sans-serif}.ds-specimen-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font:500 9px/1.5 'Spline Sans Mono',monospace;text-transform:uppercase}.ds-specimen h2{margin:22px 0 0;font:600 44px/1 'Barlow Condensed',sans-serif;letter-spacing:-.025em}.ds-specimen p{max-width:46ch;margin:12px 0 0;color:var(--muted);font-size:13px;line-height:1.55}.ds-specimen-faux-field{margin-top:26px;padding:14px 13px;border:1px solid var(--line-strong);border-radius:8px;background:#f7fafc;font-size:13px}.ds-specimen button{display:block;min-height:42px;margin:24px 0 0 auto;padding:0 16px;border:0;border-radius:10px;color:var(--white);background:var(--blue);font-weight:700;cursor:pointer}.ds-specimen button:hover{background:var(--blue-dark)}.ds-specimen button:focus-visible{outline:3px solid #ffb13b;outline-offset:3px}.ds-specimen button:active{transform:translateY(1px)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Lifecycle Inspector",
+    "overview": "The interface behaves like a precise runtime instrument rather than a generic decorative library landing page. Cool technical paper, measurement rules, and live telemetry make modal ownership visible; large condensed statements keep the product offer immediate and persuasive.\n\nThe world is bright, controlled, and evidence-led. Cobalt marks actions and visible runtime state, amber marks state that has been deliberately preserved, and navy anchors both editorial copy and code surfaces. Rounded controls soften the instrument language without turning it playful or ornamental.",
+    "keyCharacteristics": [
+      "An inspector-dominant workbench that proves behavior before asking for installation.",
+      "Three distinct typographic voices for persuasion, reading, and telemetry.",
+      "Thin rules, gridded stages, status dots, and event traces as functional visual structure.",
+      "Cobalt for active control; amber only for preserved lifecycle state.",
+      "Responsive reflow that preserves the proof sequence on narrow screens."
+    ],
+    "rules": [
+      {
+        "name": "The Proof Color Rule",
+        "body": "Cobalt means active or visible; amber means hidden but preserved. Never use amber as general decoration or as a second call-to-action color.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three-Voice Rule",
+        "body": "Use condensed type for promises, Public Sans for explanations, and monospace only for code, state, or measurement; do not interchange their jobs.",
+        "section": "typography"
+      },
+      {
+        "name": "The Earned Elevation Rule",
+        "body": "A surface receives a shadow only when it is demonstrably above another runtime layer; ordinary page sections remain divided by rules and tonal contrast.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do lead with a working lifecycle proof before installation or documentation links.",
+      "Do keep specimen, telemetry, controls, and event trace bound to the same real state.",
+      "Do use one-pixel rules, cool paper fields, and exact alignment to create instrument structure.",
+      "Do preserve keyboard focus, dialog semantics, Escape behavior, and reduced-motion fallbacks.",
+      "Do stack the proof in reading order on mobile: offer, specimen, telemetry, controls, trace, then code."
+    ],
+    "donts": [
+      "Don't turn the page into a generic feature-card grid or a decorative developer landing page.",
+      "Don't use amber for arbitrary emphasis; it is reserved for hidden-but-preserved state.",
+      "Don't add unverified performance, adoption, customer, or benchmark claims.",
+      "Don't add gratuitous gradients, glass panels, pill badges, or shadows to ordinary sections.",
+      "Don't blur the difference between `hide()` and `destroy()` in copy, color, or interaction."
+    ]
+  }
+}
