@@ -1,0 +1,6 @@
+interface:
+  display_name: "Nice Use Modal"
+  short_description: "Repo-specific patterns and workflows for nice-use-modal"
+  default_prompt: "Use the nice-use-modal repo skill to follow existing architecture, testing, and workflow conventions."
+policy:
+  allow_implicit_invocation: true
