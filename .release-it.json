@@ -1,15 +1,14 @@
 {
-  "hooks": {
-    "before:init": "pnpm release:check"
-  },
   "git": {
     "tagName": "v${version}",
     "commitMessage": "chore(release): v${version}",
-    "requireBranch": "master",
-    "requireCleanWorkingDir": true
+    "requireBranch": "release/v*",
+    "requireCleanWorkingDir": true,
+    "tag": false,
+    "push": false
   },
   "npm": {
-    "publish": true
+    "publish": false
   },
   "github": {
     "release": false
@@ -20,5 +19,10 @@
       "infile": "CHANGELOG.md",
       "ignoreRecommendedBump": true
     }
+  },
+  "hooks": {
+    "before:init": "pnpm release:check",
+    "after:bump": "pnpm install --lockfile-only && test \"$(git branch --show-current)\" = \"release/v${version}\"",
+    "after:release": "echo Prepared release PR commit for ${name} v${version}"
   }
 }

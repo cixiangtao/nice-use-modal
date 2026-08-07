@@ -56,7 +56,7 @@
     "preview": "vp preview",
     "prepack": "pnpm build",
     "prepare": "husky",
-    "release": "release-it --only-version",
+    "release": "release-it",
     "release:check": "pnpm check && pnpm test && pnpm build && pnpm build:demo && pnpm verify:package",
     "release:dry": "release-it --dry-run",
     "verify:package": "node scripts/verify-package.mjs"
