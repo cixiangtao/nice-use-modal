@@ -3,6 +3,12 @@ name: Release npm package
 on:
   push:
     branches: [master]
+  workflow_dispatch:
+    inputs:
+      release_pr:
+        description: Merged Release Please PR number to resume
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -21,6 +27,7 @@ jobs:
       tag: ${{ steps.release.outputs.tag }}
       version: ${{ steps.release.outputs.version }}
       npm-tag: ${{ steps.release.outputs.npm-tag }}
+      sha: ${{ steps.release.outputs.sha }}
     steps:
       - name: Checkout release commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -31,14 +38,31 @@ jobs:
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
+          RECOVERY_PR: ${{ inputs.release_pr || '' }}
           RELEASE_SHA: ${{ github.sha }}
         shell: bash
         run: |
           echo "release=false" >> "$GITHUB_OUTPUT"
 
-          pull_requests="$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            "repos/${GITHUB_REPOSITORY}/commits/${RELEASE_SHA}/pulls")"
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ ! "$RECOVERY_PR" =~ ^[1-9][0-9]*$ ]]; then
+              echo "A numeric merged release PR is required for recovery." >&2
+              exit 1
+            fi
+            pull_requests="$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              "repos/${GITHUB_REPOSITORY}/pulls/${RECOVERY_PR}" | jq -c '[.]')"
+            RELEASE_SHA="$(jq -r '.[0].merge_commit_sha // empty' <<< "$pull_requests")"
+            if [[ -z "$RELEASE_SHA" ]]; then
+              echo "Release PR #${RECOVERY_PR} is not merged." >&2
+              exit 1
+            fi
+          else
+            pull_requests="$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              "repos/${GITHUB_REPOSITORY}/commits/${RELEASE_SHA}/pulls")"
+          fi
+          export RELEASE_SHA
           release_pr="$(jq -c '
             [
               .[]
@@ -58,7 +82,11 @@ jobs:
           fi
 
           pr_number="$(jq -r '.number' <<< "$release_pr")"
-          base_sha="$(git rev-parse "${RELEASE_SHA}^")"
+          base_sha="$(jq -r '.base.sha' <<< "$release_pr")"
+          base_branch="$(jq -r '.base.ref' <<< "$release_pr")"
+          git fetch --force origin "$base_branch" --tags
+          git merge-base --is-ancestor "$RELEASE_SHA" "origin/${base_branch}"
+          git checkout --detach "$RELEASE_SHA"
           package_name="$(node -p 'require("./package.json").name')"
           version="$(node -p 'require("./package.json").version')"
           tag="v${version}"
@@ -109,6 +137,7 @@ jobs:
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "npm-tag=${npm_tag}" >> "$GITHUB_OUTPUT"
+          echo "sha=${RELEASE_SHA}" >> "$GITHUB_OUTPUT"
           echo "package=${package_name}"
 
   build:
@@ -120,6 +149,8 @@ jobs:
     steps:
       - name: Checkout release commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.gate.outputs.sha }}
       - name: Install pnpm
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
       - name: Set up Node.js
@@ -153,6 +184,7 @@ jobs:
       - name: Checkout release commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ needs.gate.outputs.sha }}
           fetch-depth: 0
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -169,15 +201,16 @@ jobs:
           path: artifacts
       - name: Create release tag
         env:
+          RELEASE_SHA: ${{ needs.gate.outputs.sha }}
           TAG: ${{ needs.gate.outputs.tag }}
         run: |
           git fetch --force --tags origin
           if git rev-parse --verify --quiet "refs/tags/${TAG}" >/dev/null; then
-            test "$(git rev-list -n 1 "$TAG")" = "$GITHUB_SHA"
+            test "$(git rev-list -n 1 "$TAG")" = "$RELEASE_SHA"
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git tag -a "$TAG" -m "Release ${TAG}" "$GITHUB_SHA"
+            git tag -a "$TAG" -m "Release ${TAG}" "$RELEASE_SHA"
             git push origin "refs/tags/${TAG}"
           fi
       - name: Publish with npm trusted publishing
@@ -207,12 +240,13 @@ jobs:
           fi
       - name: Verify publication
         env:
+          RELEASE_SHA: ${{ needs.gate.outputs.sha }}
           VERSION: ${{ needs.gate.outputs.version }}
           TAG: ${{ needs.gate.outputs.tag }}
           GH_TOKEN: ${{ github.token }}
         run: |
           test "$(npm view "nice-use-modal@${VERSION}" version)" = "$VERSION"
-          test "$(git ls-remote origin "refs/tags/${TAG}^{}" | awk '{print $1}')" = "$GITHUB_SHA"
+          test "$(git ls-remote origin "refs/tags/${TAG}^{}" | awk '{print $1}')" = "$RELEASE_SHA"
           gh release view "$TAG" --json tagName,isDraft,isPrerelease,url
 
   release-pr:
@@ -220,6 +254,7 @@ jobs:
     needs: [gate, publish]
     if: >-
       always() &&
+      github.event_name == 'push' &&
       needs.gate.result == 'success' &&
       (needs.gate.outputs.release != 'true' || needs.publish.result == 'success')
     runs-on: ubuntu-latest
