@@ -33,7 +33,8 @@ approval.
 
 ## Failure recovery
 
-Before rerunning a failed release, inspect the merged release PR, workflow jobs, remote tag,
-GitHub Release, npm version, and dist-tags. Retry the same workflow only after determining which
-surfaces already succeeded; never reuse an already published version or fall back to local
-publication.
+Before recovering a failed release, inspect the merged release PR, workflow jobs, remote tag,
+GitHub Release, npm version, and dist-tags. Run `Release npm package` manually from `master` with
+the merged Release Please PR number as `release_pr`. The workflow re-proves that PR, its restricted
+diff, merge commit, version, branch ancestry, and any existing tag before resuming only missing
+delivery steps. Never reuse an already published version or fall back to local publication.
