@@ -3,10 +3,6 @@ name: Release npm package
 on:
   push:
     branches: [master]
-    paths:
-      - package.json
-      - pnpm-lock.yaml
-      - CHANGELOG.md
 
 permissions:
   contents: read
@@ -50,18 +46,18 @@ jobs:
               | select(.merge_commit_sha == env.RELEASE_SHA)
               | select(.base.ref == "master")
               | select(.head.repo.full_name == env.GITHUB_REPOSITORY)
-              | select(.head.ref | startswith("release/v"))
+              | select(.head.ref | startswith("release-please--branches--master--"))
+              | select([.labels[].name] | any(. == "autorelease: pending" or . == "autorelease: tagged"))
             ]
             | if length == 1 then .[0] else empty end
           ' <<< "$pull_requests")"
 
           if [[ -z "$release_pr" ]]; then
-            echo "This commit is not the merge of one release/v* PR; publication is skipped."
+            echo "This commit is not the merge of one automated release PR; publication is skipped."
             exit 0
           fi
 
           pr_number="$(jq -r '.number' <<< "$release_pr")"
-          head_ref="$(jq -r '.head.ref' <<< "$release_pr")"
           base_sha="$(git rev-parse "${RELEASE_SHA}^")"
           package_name="$(node -p 'require("./package.json").name')"
           version="$(node -p 'require("./package.json").version')"
@@ -71,17 +67,12 @@ jobs:
             echo "Invalid release version: ${version}" >&2
             exit 1
           fi
-          if [[ "$head_ref" != "release/${tag}" ]]; then
-            echo "Release branch ${head_ref} must be release/${tag}." >&2
-            exit 1
-          fi
-
           changed_files="$(gh api --paginate \
             "repos/${GITHUB_REPOSITORY}/pulls/${pr_number}/files" \
             --jq '.[].filename')"
           while IFS= read -r file; do
             case "$file" in
-              package.json|pnpm-lock.yaml|CHANGELOG.md) ;;
+              .release-please-manifest.json|package.json|CHANGELOG.md) ;;
               *)
                 echo "Release PR #${pr_number} contains non-release file: ${file}" >&2
                 exit 1
@@ -96,6 +87,7 @@ jobs:
           jq -S 'del(.version)' package.json > "$RUNNER_TEMP/package.release.normalized.json"
           cmp "$RUNNER_TEMP/package.base.normalized.json" "$RUNNER_TEMP/package.release.normalized.json"
           grep -F "$version" CHANGELOG.md >/dev/null
+          test "$(jq -r '.["."]' .release-please-manifest.json)" = "$version"
 
           if [[ "$version" == *-* ]]; then
             npm_tag="${version#*-}"
@@ -198,10 +190,61 @@ jobs:
           else
             npm publish artifacts/*.tgz --access public --tag "$NPM_TAG" --provenance
           fi
+      - name: Create or repair GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.gate.outputs.tag }}
+          VERSION: ${{ needs.gate.outputs.version }}
+        run: |
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            release_args=("$TAG" --verify-tag --title "$TAG" --generate-notes)
+            if [[ "$VERSION" == *-* ]]; then
+              release_args+=(--prerelease)
+            else
+              release_args+=(--latest)
+            fi
+            gh release create "${release_args[@]}"
+          fi
       - name: Verify publication
         env:
           VERSION: ${{ needs.gate.outputs.version }}
           TAG: ${{ needs.gate.outputs.tag }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           test "$(npm view "nice-use-modal@${VERSION}" version)" = "$VERSION"
           test "$(git ls-remote origin "refs/tags/${TAG}^{}" | awk '{print $1}')" = "$GITHUB_SHA"
+          gh release view "$TAG" --json tagName,isDraft,isPrerelease,url
+
+  release-pr:
+    name: Maintain automated release PR
+    needs: [gate, publish]
+    if: >-
+      always() &&
+      needs.gate.result == 'success' &&
+      (needs.gate.outputs.release != 'true' || needs.publish.result == 'success')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Verify release controller credentials
+        env:
+          CLIENT_ID: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          PRIVATE_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        run: |
+          test -n "$CLIENT_ID" || { echo "RELEASE_APP_CLIENT_ID is not configured." >&2; exit 1; }
+          test -n "$PRIVATE_KEY" || { echo "RELEASE_APP_PRIVATE_KEY is not configured." >&2; exit 1; }
+      - name: Create short-lived release controller token
+        id: release-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-issues: write
+          permission-pull-requests: write
+      - name: Create or update release PR
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ steps.release-token.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
