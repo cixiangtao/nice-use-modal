@@ -245,7 +245,15 @@ jobs:
           TAG: ${{ needs.gate.outputs.tag }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          test "$(npm view "nice-use-modal@${VERSION}" version)" = "$VERSION"
+          for attempt in {1..12}; do
+            published_version="$(npm view "nice-use-modal@${VERSION}" version 2>/dev/null || true)"
+            [[ "$published_version" == "$VERSION" ]] && break
+            if [[ "$attempt" == 12 ]]; then
+              echo "nice-use-modal@${VERSION} did not become visible in the registry." >&2
+              exit 1
+            fi
+            sleep 5
+          done
           test "$(git ls-remote origin "refs/tags/${TAG}^{}" | awk '{print $1}')" = "$RELEASE_SHA"
           gh release view "$TAG" --json tagName,isDraft,isPrerelease,url
 
