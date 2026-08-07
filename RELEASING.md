@@ -1,71 +1,39 @@
 # Releasing nice-use-modal
 
-Releases are maintainer-only and use release-it as an interactive npm publisher.
+GitHub Actions is the only npm and GitHub Release publisher. Release Please automatically creates
+or updates the release pull request; maintainers do not bump versions, create tags, or publish from
+a workstation.
 
-## Release contract
+## Normal flow
 
-- `package.json` owns the version and follows Semantic Versioning.
-- Releases start from `master` with a clean worktree and configured upstream.
-- `pnpm release:check` is the required quality, build, package, and consumer gate.
-- Conventional commits feed `CHANGELOG.md`; the maintainer chooses the version.
-- release-it creates `chore(release): vX.Y.Z`, the annotated `vX.Y.Z` tag, pushes
-  the commit and tag, and publishes the package to npm.
-- npm, Git tags, and `CHANGELOG.md` are the canonical release surfaces. GitHub
-  Releases and downloadable binary assets are not part of this package's contract.
-- npm authentication and any one-time password remain outside the repository.
+1. Merge ordinary product changes into protected `master` through reviewed pull requests and
+   required checks. Unrelated open pull requests may remain open.
+2. Release Please updates one automated release PR from a
+   `release-please--branches--master--...` branch. Its proposed SemVer version and `CHANGELOG.md`
+   are derived from conventional commit or squash-merge titles (`fix` = patch, `feat` = minor,
+   and `!` or `BREAKING CHANGE` = major).
+3. Review the release-only diff, version, changelog, and required CI, then merge that PR when the
+   accumulated changes are ready to publish.
+4. `.github/workflows/release.yml` verifies that exact merged PR and its restricted diff, builds
+   and packs once, creates `vX.Y.Z`, publishes the inspected artifact through npm trusted
+   publishing, and creates the matching GitHub Release.
+5. Verify the workflow, remote tag target, GitHub Release flags, npm version and dist-tags, and a
+   fresh install of the public package.
 
-## Prepare
+Do not create or push release tags locally, run `npm publish`, or manually edit the automated
+release PR branch. A regular PR merge never publishes.
 
-1. Confirm `master` is synchronized with `origin/master`.
-2. Confirm the worktree and index are clean.
-3. Review unreleased commits and choose a SemVer increment.
-4. Run the full gate:
+## Automation credentials
 
-   ```bash
-   pnpm release:check
-   ```
+The repository must define `RELEASE_APP_CLIENT_ID` as an Actions variable and
+`RELEASE_APP_PRIVATE_KEY` as an Actions secret for a GitHub App installed on this repository with
+Contents, Issues, and Pull requests read/write permissions. The App token lets required CI run
+unattended; PR checks created with the default `GITHUB_TOKEN` currently wait for separate workflow
+approval.
 
-5. Preview release-it without changing local or remote state:
+## Failure recovery
 
-   ```bash
-   pnpm release:dry
-   ```
-
-## Publish
-
-Run:
-
-```bash
-pnpm release
-```
-
-Confirm the selected version and release plan. Do not bypass the clean-worktree,
-branch, npm, or quality checks.
-
-For a prerelease, provide both a prerelease identifier and an explicit npm
-dist-tag such as `beta`. Never let a prerelease move `latest` accidentally.
-
-## Verify
-
-After release-it completes, independently verify:
-
-```bash
-git ls-remote --heads --tags origin
-npm view nice-use-modal version dist-tags --json
-```
-
-Download the public npm artifact and repeat the package/consumer checks before
-calling the version released.
-
-## Recover from failure
-
-Do not retry blindly. Inspect:
-
-- `package.json`, `CHANGELOG.md`, the index, and the worktree;
-- local and remote `vX.Y.Z` tags;
-- the npm version and dist-tags;
-- whether a release commit or push completed before the failure.
-
-If npm authentication or network access fails, confirm whether release-it rolled
-back the version and tag. Keep secrets and browser-authentication URLs out of logs
-and issue reports.
+Before rerunning a failed release, inspect the merged release PR, workflow jobs, remote tag,
+GitHub Release, npm version, and dist-tags. Retry the same workflow only after determining which
+surfaces already succeeded; never reuse an already published version or fall back to local
+publication.

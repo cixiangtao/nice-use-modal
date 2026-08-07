@@ -1,0 +1,250 @@
+name: Release npm package
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    name: Verify merged release PR
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.release.outputs.release }}
+      tag: ${{ steps.release.outputs.tag }}
+      version: ${{ steps.release.outputs.version }}
+      npm-tag: ${{ steps.release.outputs.npm-tag }}
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Verify release admission
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          echo "release=false" >> "$GITHUB_OUTPUT"
+
+          pull_requests="$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "repos/${GITHUB_REPOSITORY}/commits/${RELEASE_SHA}/pulls")"
+          release_pr="$(jq -c '
+            [
+              .[]
+              | select(.merged_at != null)
+              | select(.merge_commit_sha == env.RELEASE_SHA)
+              | select(.base.ref == "master")
+              | select(.head.repo.full_name == env.GITHUB_REPOSITORY)
+              | select(.head.ref | startswith("release-please--branches--master--"))
+              | select([.labels[].name] | any(. == "autorelease: pending" or . == "autorelease: tagged"))
+            ]
+            | if length == 1 then .[0] else empty end
+          ' <<< "$pull_requests")"
+
+          if [[ -z "$release_pr" ]]; then
+            echo "This commit is not the merge of one automated release PR; publication is skipped."
+            exit 0
+          fi
+
+          pr_number="$(jq -r '.number' <<< "$release_pr")"
+          base_sha="$(git rev-parse "${RELEASE_SHA}^")"
+          package_name="$(node -p 'require("./package.json").name')"
+          version="$(node -p 'require("./package.json").version')"
+          tag="v${version}"
+
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid release version: ${version}" >&2
+            exit 1
+          fi
+          changed_files="$(gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/pulls/${pr_number}/files" \
+            --jq '.[].filename')"
+          while IFS= read -r file; do
+            case "$file" in
+              .release-please-manifest.json|package.json|CHANGELOG.md) ;;
+              *)
+                echo "Release PR #${pr_number} contains non-release file: ${file}" >&2
+                exit 1
+                ;;
+            esac
+          done <<< "$changed_files"
+
+          git show "${base_sha}:package.json" > "$RUNNER_TEMP/package.base.json"
+          base_version="$(node -p 'require(process.argv[1]).version' "$RUNNER_TEMP/package.base.json")"
+          test "$base_version" != "$version"
+          jq -S 'del(.version)' "$RUNNER_TEMP/package.base.json" > "$RUNNER_TEMP/package.base.normalized.json"
+          jq -S 'del(.version)' package.json > "$RUNNER_TEMP/package.release.normalized.json"
+          cmp "$RUNNER_TEMP/package.base.normalized.json" "$RUNNER_TEMP/package.release.normalized.json"
+          grep -F "$version" CHANGELOG.md >/dev/null
+          test "$(jq -r '.["."]' .release-please-manifest.json)" = "$version"
+
+          if [[ "$version" == *-* ]]; then
+            npm_tag="${version#*-}"
+            npm_tag="${npm_tag%%.*}"
+            case "$npm_tag" in alpha|beta|rc|next) ;; *)
+              echo "Unsupported prerelease channel: ${npm_tag}" >&2
+              exit 1
+            esac
+          else
+            npm_tag="latest"
+          fi
+
+          git fetch --force --tags origin
+          if git rev-parse --verify --quiet "refs/tags/${tag}" >/dev/null; then
+            test "$(git rev-list -n 1 "$tag")" = "$RELEASE_SHA"
+          fi
+
+          echo "release=true" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "npm-tag=${npm_tag}" >> "$GITHUB_OUTPUT"
+          echo "package=${package_name}"
+
+  build:
+    name: Build and pack npm artifact
+    needs: gate
+    if: needs.gate.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Validate and pack
+        run: |
+          pnpm release:check
+          mkdir -p artifacts
+          npm pack --pack-destination artifacts
+      - name: Upload npm artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: nice-use-modal-npm-${{ needs.gate.outputs.version }}
+          path: artifacts/*.tgz
+          if-no-files-found: error
+
+  publish:
+    name: Tag and publish npm package
+    needs: [gate, build]
+    if: needs.gate.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+          registry-url: https://registry.npmjs.org
+      - name: Install supported npm CLI
+        run: npm install --global npm@11.16.0
+      - name: Download npm artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: nice-use-modal-npm-${{ needs.gate.outputs.version }}
+          path: artifacts
+      - name: Create release tag
+        env:
+          TAG: ${{ needs.gate.outputs.tag }}
+        run: |
+          git fetch --force --tags origin
+          if git rev-parse --verify --quiet "refs/tags/${TAG}" >/dev/null; then
+            test "$(git rev-list -n 1 "$TAG")" = "$GITHUB_SHA"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "Release ${TAG}" "$GITHUB_SHA"
+            git push origin "refs/tags/${TAG}"
+          fi
+      - name: Publish with npm trusted publishing
+        env:
+          NPM_TAG: ${{ needs.gate.outputs.npm-tag }}
+          VERSION: ${{ needs.gate.outputs.version }}
+        run: |
+          if npm view "nice-use-modal@${VERSION}" version >/dev/null 2>&1; then
+            echo "nice-use-modal@${VERSION} already exists; skipping npm publish."
+          else
+            npm publish ./artifacts/*.tgz --access public --tag "$NPM_TAG" --provenance
+          fi
+      - name: Create or repair GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.gate.outputs.tag }}
+          VERSION: ${{ needs.gate.outputs.version }}
+        run: |
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            release_args=("$TAG" --verify-tag --title "$TAG" --generate-notes)
+            if [[ "$VERSION" == *-* ]]; then
+              release_args+=(--prerelease)
+            else
+              release_args+=(--latest)
+            fi
+            gh release create "${release_args[@]}"
+          fi
+      - name: Verify publication
+        env:
+          VERSION: ${{ needs.gate.outputs.version }}
+          TAG: ${{ needs.gate.outputs.tag }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(npm view "nice-use-modal@${VERSION}" version)" = "$VERSION"
+          test "$(git ls-remote origin "refs/tags/${TAG}^{}" | awk '{print $1}')" = "$GITHUB_SHA"
+          gh release view "$TAG" --json tagName,isDraft,isPrerelease,url
+
+  release-pr:
+    name: Maintain automated release PR
+    needs: [gate, publish]
+    if: >-
+      always() &&
+      needs.gate.result == 'success' &&
+      (needs.gate.outputs.release != 'true' || needs.publish.result == 'success')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Verify release controller credentials
+        env:
+          CLIENT_ID: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          PRIVATE_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        run: |
+          test -n "$CLIENT_ID" || { echo "RELEASE_APP_CLIENT_ID is not configured." >&2; exit 1; }
+          test -n "$PRIVATE_KEY" || { echo "RELEASE_APP_PRIVATE_KEY is not configured." >&2; exit 1; }
+      - name: Create short-lived release controller token
+        id: release-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-issues: write
+          permission-pull-requests: write
+      - name: Create or update release PR
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ steps.release-token.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

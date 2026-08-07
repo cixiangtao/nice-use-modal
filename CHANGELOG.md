@@ -1,4 +1,15 @@
+## [3.1.0](https://github.com/cixiangtao/nice-use-modal/compare/v3.0.1...v3.1.0) (2026-08-07)
 
+
+### Features
+
+* **demo:** redesign lifecycle inspector ([76b925c](https://github.com/cixiangtao/nice-use-modal/commit/76b925cd8255440a77ebd46681b410f3aa157bc4))
+
+
+### Bug Fixes
+
+* **release:** allow npm publishing with pnpm setup ([ed127dd](https://github.com/cixiangtao/nice-use-modal/commit/ed127dd70deb4d1b4e59d22c6564a2955e831786))
+* **security:** validate documentation URL exactly ([c69f8f1](https://github.com/cixiangtao/nice-use-modal/commit/c69f8f1462f8a4bb4c71d2614d95ab84bc0da819))
 
 ## [3.0.1](https://github.com/cixiangtao/nice-use-modal/compare/v3.0.0...v3.0.1) (2026-07-14)
 
