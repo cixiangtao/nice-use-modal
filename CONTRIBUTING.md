@@ -4,7 +4,7 @@ Thanks for taking the time to improve nice-use-modal.
 
 ## Before you start
 
-- Use Node.js 24.
+- Use Node.js 24.11 or newer.
 - Use pnpm 10.34.5, as declared by `packageManager`.
 - Search the existing issues before opening a new bug report or feature request.
 - Use GitHub private vulnerability reporting for security issues instead of a public issue.

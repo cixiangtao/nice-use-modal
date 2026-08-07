@@ -188,7 +188,7 @@ jobs:
           if npm view "nice-use-modal@${VERSION}" version >/dev/null 2>&1; then
             echo "nice-use-modal@${VERSION} already exists; skipping npm publish."
           else
-            npm publish artifacts/*.tgz --access public --tag "$NPM_TAG" --provenance
+            npm publish ./artifacts/*.tgz --access public --tag "$NPM_TAG" --provenance
           fi
       - name: Create or repair GitHub Release
         env:
