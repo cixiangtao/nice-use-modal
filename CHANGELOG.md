@@ -11,6 +11,14 @@
 * **release:** allow npm publishing with pnpm setup ([ed127dd](https://github.com/cixiangtao/nice-use-modal/commit/ed127dd70deb4d1b4e59d22c6564a2955e831786))
 * **security:** validate documentation URL exactly ([c69f8f1](https://github.com/cixiangtao/nice-use-modal/commit/c69f8f1462f8a4bb4c71d2614d95ab84bc0da819))
 
+## [3.1.1](https://github.com/cixiangtao/nice-use-modal/compare/v3.1.0...v3.1.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* **deps:** keep Actions majors manual ([#19](https://github.com/cixiangtao/nice-use-modal/issues/19)) ([780ee11](https://github.com/cixiangtao/nice-use-modal/commit/780ee11d3e34f6b026580f02103960489255431d))
+* harden package maintenance and documentation ([#20](https://github.com/cixiangtao/nice-use-modal/issues/20)) ([9689a06](https://github.com/cixiangtao/nice-use-modal/commit/9689a06360f513b08826a386e518f4899939696a))
+
 ## [3.0.1](https://github.com/cixiangtao/nice-use-modal/compare/v3.0.0...v3.0.1) (2026-07-14)
 
 
