@@ -1,5 +1,7 @@
 # Releasing nice-use-modal
 
+English | [简体中文](RELEASING.zh-CN.md)
+
 GitHub Actions is the only npm and GitHub Release publisher. Release Please automatically creates
 or updates the release pull request; maintainers do not bump versions, create tags, or publish from
 a workstation.
