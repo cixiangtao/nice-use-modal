@@ -1,5 +1,7 @@
 # Support
 
+English | [简体中文](SUPPORT.zh-CN.md)
+
 Use [GitHub Issues](https://github.com/cixiangtao/nice-use-modal/issues) for:
 
 - reproducible bugs in nice-use-modal;

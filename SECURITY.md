@@ -1,5 +1,7 @@
 # Security policy
 
+English | [简体中文](SECURITY.zh-CN.md)
+
 ## Reporting a vulnerability
 
 Do not open a public issue for a suspected vulnerability.

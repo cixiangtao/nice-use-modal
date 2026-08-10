@@ -1,5 +1,7 @@
 # nice-use-modal
 
+English | [简体中文](README.zh-CN.md)
+
 [![npm version](https://badgen.net/npm/v/nice-use-modal)](https://www.npmjs.com/package/nice-use-modal)
 [![npm downloads](https://badgen.net/npm/dt/nice-use-modal?label=downloads)](https://www.npmjs.com/package/nice-use-modal)
 [![CI](https://github.com/cixiangtao/nice-use-modal/actions/workflows/ci.yml/badge.svg)](https://github.com/cixiangtao/nice-use-modal/actions/workflows/ci.yml)

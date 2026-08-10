@@ -2,6 +2,8 @@ catalog:
   vite: npm:@voidzero-dev/vite-plus-core@0.2.7
   vite-plus: 0.2.7
 overrides:
+  fast-uri: 3.1.5
+  js-yaml: 4.3.1
   vite: "catalog:"
 peerDependencyRules:
   allowAny:

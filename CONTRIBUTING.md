@@ -1,5 +1,7 @@
 # Contributing to nice-use-modal
 
+English | [简体中文](CONTRIBUTING.zh-CN.md)
+
 Thanks for taking the time to improve nice-use-modal.
 
 ## Before you start
