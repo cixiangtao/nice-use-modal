@@ -11,6 +11,14 @@
 * **release:** allow npm publishing with pnpm setup ([ed127dd](https://github.com/cixiangtao/nice-use-modal/commit/ed127dd70deb4d1b4e59d22c6564a2955e831786))
 * **security:** validate documentation URL exactly ([c69f8f1](https://github.com/cixiangtao/nice-use-modal/commit/c69f8f1462f8a4bb4c71d2614d95ab84bc0da819))
 
+## [3.1.2](https://github.com/cixiangtao/nice-use-modal/compare/v3.1.1...v3.1.2) (2026-10-21)
+
+
+### Bug Fixes
+
+* apply fast-uri security patch ([#23](https://github.com/cixiangtao/nice-use-modal/issues/23)) ([4d907e2](https://github.com/cixiangtao/nice-use-modal/commit/4d907e220d3fc5be2091130eb83fe6e945290154))
+* **deps:** bump vite-plus from 0.2.7 to 1.1.0 ([#25](https://github.com/cixiangtao/nice-use-modal/issues/25)) ([2a9f0ca](https://github.com/cixiangtao/nice-use-modal/commit/2a9f0ca5b4bff7717548326bb363fd50fc7113fd))
+
 ## [3.1.1](https://github.com/cixiangtao/nice-use-modal/compare/v3.1.0...v3.1.1) (2026-08-10)
 
 
